@@ -598,14 +598,29 @@ html[data-js='an'] .raum--recht p { color: var(--tusche-weich); }
 }
 #recht-kurz a { min-height: 2.75rem; display: inline-flex; align-items: center; text-decoration: none; }
 #recht-kurz a:hover { color: var(--zinnober); }
-html[data-modus='raum'] #recht-kurz { opacity: .45; }
+
+/* Im Raum zählt unten links der Kompass. Zwei Dinge in einer Ecke
+   sind eins zu viel — also wandert das Rechtliche nach oben links,
+   gegenüber dem Rückweg. Erreichbar bleibt es überall. */
+html[data-modus='raum'] #recht-kurz {
+  top: var(--sicher-oben);
+  bottom: auto;
+  right: auto;
+  justify-content: flex-start;
+  opacity: .4;
+  transition: opacity var(--schnell);
+}
+html[data-modus='raum'] #recht-kurz:hover,
+html[data-modus='raum'] #recht-kurz:focus-within { opacity: 1; }
+
 html[data-raum='raum-impressum'] #recht-kurz,
 html[data-raum='raum-datenschutz'] #recht-kurz { display: none; }
 html[data-raum='raum-impressum'] #werkzeug,
 html[data-raum='raum-datenschutz'] #werkzeug { display: none; }
 
 @media (max-width: 40rem) {
-  #recht-kurz {
+  /* Im Feld über den Schaltern, im Raum weiterhin oben links. */
+  html[data-modus='feld'] #recht-kurz {
     bottom: calc(var(--sicher-unten) + 3.2rem);
     right: var(--sicher-rechts);
     justify-content: center;

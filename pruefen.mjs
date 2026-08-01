@@ -244,6 +244,44 @@ try {
   if (fehlt.length) nein('Bewegungshinweis nennt nicht: ' + fehlt.join(', '));
   else ja('Bewegungshinweis nennt Pfeile und Esc');
 
+  /* Die vier Ecken: in jedem Modus darf jede Ecke nur einmal belegt sein.
+     Genau daran ist der Kompass zuletzt im Impressum gelandet. */
+  const ecken = {
+    feld: {
+      'oben links':   ['.feld__ort'],
+      'oben rechts':  [],
+      'unten links':  ['#recht-kurz', '.feld__hinweis'],   // zwei Reihen
+      'unten rechts': ['#werkzeug']
+    },
+    raum: {
+      'oben links':   ['#recht-kurz'],
+      'oben rechts':  ['#zurueck'],
+      'unten links':  ['.kompass'],
+      'unten rechts': ['#werkzeug']
+    }
+  };
+  /* Zwei Dinge in derselben Ecke brauchen verschiedene Reihen. */
+  const reihen = { '.feld__hinweis': 'obere Reihe', '#recht-kurz': 'untere Reihe',
+                   '.kompass': 'untere Reihe', '.geste': 'obere Reihe' };
+  let eckenGut = true;
+  for (const [modus, ecke] of Object.entries(ecken)) {
+    for (const [wo, wer] of Object.entries(ecke)) {
+      if (wer.length < 2) continue;
+      const rr = wer.map(w => reihen[w]);
+      if (new Set(rr).size !== rr.length) {
+        nein(`${modus}, ${wo}: ${wer.join(' und ')} liegen auf derselben Reihe`);
+        eckenGut = false;
+      }
+    }
+  }
+  /* Und die Kernaussage: im Raum ist unten links der Kompass, sonst nichts. */
+  const cssRaumRecht = alleCss.match(/html\[data-modus='raum'\] #recht-kurz \{[^}]*\}/);
+  if (!cssRaumRecht || !/bottom:\s*auto/.test(cssRaumRecht[0])) {
+    nein('im Raum liegt das Rechtliche noch unten links — dort steht der Kompass');
+    eckenGut = false;
+  }
+  if (eckenGut) ja('die vier Ecken sind in beiden Modi eindeutig belegt');
+
   /* Jede Frage im Kontaktformular braucht einen nächsten Schritt */
   const fragen = [...doc.querySelectorAll('.fragment[data-art="frage"]')];
   const ohneWeiter = fragen.filter(f => !f.querySelector('.weiter'));

@@ -181,10 +181,11 @@ html[data-js='an'] .feld__satz {
 .feld__hinweis b + b,
 .geste b + b,
 .empfang__zeichen b + b { margin-inline-start: .25em; }
+/* Eine Reihe über dem Rechtlichen — unten links ist schon belegt. */
 html[data-js='an'] .feld__hinweis {
   position: absolute;
-  left: var(--rand);
-  bottom: var(--rand);
+  left: var(--sicher-links, var(--rand));
+  bottom: calc(var(--sicher-unten, var(--rand)) + 3.1rem);
   opacity: .0;
   animation: hinweis-kommt 1s var(--kurve) 2.6s forwards;
 }
