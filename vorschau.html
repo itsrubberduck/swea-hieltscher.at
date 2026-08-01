@@ -1150,19 +1150,25 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
   margin-inline-end: .22em; opacity: .5;
 }
 
-/* ── Der Kompass: wie viel dieses Raums ist gefunden? ───────────── */
+/* ══════════════════════════════════════════════════════════════════
+   DIE FUSSZEILE — zwei Reihen, damit sich nichts ins Gehege kommt.
+
+     Reihe 1 (oben):   der Weg, mittig
+     Reihe 2 (unten):  links wie weit man ist, rechts die Schalter
+   ══════════════════════════════════════════════════════════════════ */
 .kompass {
   position: absolute;
-  left: var(--rand);
-  bottom: calc(var(--rand) + 2.6rem);
+  left: var(--sicher-links, var(--rand));
+  bottom: var(--sicher-unten, var(--rand));
   z-index: 5;
   display: flex;
   align-items: center;
-  gap: .8rem;
+  gap: .75rem;
+  height: 2.2rem;
   pointer-events: none;
   mix-blend-mode: multiply;
 }
-.kompass svg { width: 2.6rem; height: 2.6rem; overflow: visible; }
+.kompass svg { width: 2.2rem; height: 2.2rem; overflow: visible; flex: none; }
 .kompass circle { fill: none; stroke-width: 1.4; }
 .kompass .kompass__bahn { stroke: color-mix(in srgb, var(--tusche) 20%, transparent); }
 .kompass .kompass__weg {
@@ -1180,38 +1186,36 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 }
 .kompass__text b { font-weight: 400; color: var(--tusche); font-variant-numeric: tabular-nums; }
 
-/* ── Die Geste: wie man sich bewegt ─────────────────────────────── */
+/* Reihe 1: wie man sich bewegt. Immer eine Zeile — nie zwei. */
 .geste {
   position: absolute;
   left: 50%;
-  bottom: var(--rand);
+  bottom: calc(var(--sicher-unten, var(--rand)) + 3.1rem);
   transform: translateX(-50%);
   z-index: 5;
-  max-width: min(46rem, 92vw);
-  font-size: .68rem;
+  max-width: calc(100vw - 2rem);
+  white-space: nowrap;
+  font-size: clamp(.58rem, .48rem + .3vw, .68rem);
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--tusche-fern);
   pointer-events: none;
   text-align: center;
-  line-height: 1.9;
+  line-height: 1;
+  margin: 0;
   transition: opacity .8s var(--kurve);
 }
-.geste b {
-  font-weight: 400;
-  color: var(--tusche);
-  padding: .18em .45em .22em;
-  margin-inline-end: .1em;
-  border: 1px solid color-mix(in srgb, var(--tusche) 28%, transparent);
-  border-radius: .4em;
-  letter-spacing: .06em;
-}
 /* Verblasst, sobald man sich bewegt — verschwindet aber nie ganz. */
-.raum[data-bewegt] .geste { opacity: .32; }
+.raum[data-bewegt] .geste { opacity: .34; }
 .raum[data-bewegt] .geste:hover { opacity: 1; }
 
-@media (max-width: 46rem) {
-  .geste { font-size: .6rem; letter-spacing: .1em; bottom: calc(var(--rand) + 2.4rem); }
+/* Wird es eng, verschwindet erst das Beiwerk, dann die Zählung. */
+@media (max-width: 60rem) {
+  .geste [data-nebensache] { display: none; }
+}
+@media (max-width: 34rem) {
+  .kompass__text { display: none; }
+  .geste { letter-spacing: .08em; }
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -57140,9 +57144,9 @@ function raumBauen (el, id) {
   const geste = document.createElement('p');
   geste.className = 'geste';
   geste.innerHTML = grobzeiger()
-    ? 'Zieh dich der Spirale entlang &middot; oben rechts zurück zu den Kreisen'
-    : '<b>←</b><b>→</b> Fragment für Fragment &middot; Scrollen oder Ziehen &middot; ' +
-      '<b>Esc</b> zurück zu den Kreisen';
+    ? 'Ziehen &middot; oben rechts zurück'
+    : '<b>←</b><b>→</b> weiter <span data-nebensache>&middot; Scrollen &middot; Ziehen </span>' +
+      '&middot; <b>Esc</b> zurück';
   el.append(geste);
 
   return { el, id, tafel, frag, kompass, geste, spirale: null, laenge: 0 };

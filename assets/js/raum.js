@@ -155,9 +155,9 @@ function raumBauen (el, id) {
   const geste = document.createElement('p');
   geste.className = 'geste';
   geste.innerHTML = grobzeiger()
-    ? 'Zieh dich der Spirale entlang &middot; oben rechts zurück zu den Kreisen'
-    : '<b>←</b><b>→</b> Fragment für Fragment &middot; Scrollen oder Ziehen &middot; ' +
-      '<b>Esc</b> zurück zu den Kreisen';
+    ? 'Ziehen &middot; oben rechts zurück'
+    : '<b>←</b><b>→</b> weiter <span data-nebensache>&middot; Scrollen &middot; Ziehen </span>' +
+      '&middot; <b>Esc</b> zurück';
   el.append(geste);
 
   return { el, id, tafel, frag, kompass, geste, spirale: null, laenge: 0 };
