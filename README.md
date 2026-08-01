@@ -76,7 +76,6 @@ node bild.mjs 1200 750     # rendert das Feld als PNG, ohne Browser
 - [ ] Echte Aufnahmen ihrer Bilder nach `assets/img/werke/`
       (ersetzen die gemalten Platzhalter in `.werk__flaeche`)
 - [ ] Texte im Raum **Bild** stammen von mir — von Swea ersetzen lassen
-- [ ] Hosting-Anbieter in der Datenschutzerklärung eintragen
 - [ ] Formular: derzeit `mailto:`. Für ein echtes Absenden braucht es
       einen kleinen Server-Endpunkt.
 - [ ] Foto von Swea

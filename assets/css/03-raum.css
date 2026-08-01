@@ -495,7 +495,7 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 }
 .formular__wahl input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .formular__wahl label {
-  display: inline-block; padding: .38em .95em .42em;
+  display: inline-flex; align-items: center; min-height: 2.75rem; padding: .38em .95em .42em;
   border: 1px solid color-mix(in srgb, var(--tusche) 24%, transparent);
   border-radius: 3em; font-family: 'Instrument Sans', sans-serif; font-size: .85rem;
   cursor: pointer; color: var(--tusche-weich);
@@ -542,6 +542,77 @@ html[data-js='an'] #rand { display: none; }
 #rand a { text-decoration: none; border-bottom: 1px solid currentColor; }
 #rand a:hover { color: var(--zinnober); }
 .rand__zeile { margin: 0; }
+
+/* Rechtliches bleibt auch in der inszenierten Ansicht ein ruhig
+   scrollbar gesetztes Dokument. Lange Rechtstexte gehören nicht auf
+   die Spirale. */
+html[data-js='an'] .raum--recht {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  cursor: auto;
+  padding: calc(var(--sicher-oben) + 4.5rem) var(--sicher-rechts)
+           calc(var(--sicher-unten) + 5rem) var(--sicher-links);
+  background: color-mix(in srgb, var(--papier-hell) 96%, transparent);
+}
+html[data-js='an'] .raum--recht .tafel {
+  position: static;
+  width: min(100%, 64ch);
+  height: auto;
+  margin-inline: auto;
+  transform: none !important;
+  display: grid;
+  gap: clamp(2rem, 6vw, 4rem);
+}
+html[data-js='an'] .raum--recht .fragment {
+  position: static;
+  width: auto !important;
+  translate: none;
+  rotate: none;
+  opacity: 1 !important;
+  filter: none !important;
+}
+html[data-js='an'] .raum--recht .fragment::before,
+html[data-js='an'] .raum--recht .kompass,
+html[data-js='an'] .raum--recht .geste { display: none; }
+html[data-js='an'] .raum--recht .raum__kopf { justify-items: start; text-align: left; }
+html[data-js='an'] .raum--recht h3 { margin-bottom: .65rem; }
+html[data-js='an'] .raum--recht p { color: var(--tusche-weich); }
+
+#recht-kurz {
+  position: fixed;
+  left: var(--sicher-links);
+  bottom: var(--sicher-unten);
+  z-index: var(--z-werkzeug);
+  display: flex;
+  gap: 1rem;
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+}
+#recht-kurz a { min-height: 2.75rem; display: inline-flex; align-items: center; text-decoration: none; }
+#recht-kurz a:hover { color: var(--zinnober); }
+html[data-modus='raum'] #recht-kurz { opacity: .45; }
+html[data-raum='raum-impressum'] #recht-kurz,
+html[data-raum='raum-datenschutz'] #recht-kurz { display: none; }
+html[data-raum='raum-impressum'] #werkzeug,
+html[data-raum='raum-datenschutz'] #werkzeug { display: none; }
+
+@media (max-width: 40rem) {
+  #recht-kurz {
+    bottom: calc(var(--sicher-unten) + 3.2rem);
+    right: var(--sicher-rechts);
+    justify-content: center;
+  }
+  html[data-js='an'] .raum--recht {
+    padding-top: calc(var(--sicher-oben) + 4rem);
+    font-size: 1rem;
+  }
+  .kompass { left: var(--sicher-links); bottom: calc(var(--sicher-unten) + 3rem); }
+  .geste { bottom: calc(var(--sicher-unten) + 3rem); }
+}
 
 /* ── Nur ohne JS gebraucht: Listen und Weg als Listen ───────────── */
 html:not([data-js='an']) .liste,

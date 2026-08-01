@@ -123,12 +123,14 @@ $$('a[href^="#raum-"]').forEach(a => {
 /* ══ Werkzeug ═════════════════════════════════════════════════════ */
 $$('#werkzeug [data-schalter]').forEach(b => {
   const k = b.dataset.schalter;
-  const stelle = (an) => {
+  const stelle = (an, speichern = true) => {
     b.setAttribute('aria-pressed', an ? 'true' : 'false');
     if (an) wurzel.dataset[k] = 'an'; else delete wurzel.dataset[k];
-    merke.schreib(k, an ? 'an' : 'aus');
+    if (speichern) merke.schreib(k, an ? 'an' : 'aus');
   };
-  stelle(einst[k] === 'an');
+  /* Beim bloßen Besuch nichts schreiben. Erst eine bewusste Auswahl
+     wird als lokale Einstellung auf diesem Gerät gemerkt. */
+  stelle(einst[k] === 'an', false);
   /* Ton wird beim Laden nie von selbst gestartet, auch wenn er gemerkt ist. */
   if (k === 'ton' && einst.ton === 'an') {
     addEventListener('pointerdown', function ersteBeruehrung () {

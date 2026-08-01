@@ -74,6 +74,10 @@
 
   /* Maße */
   --rand:          clamp(1.25rem, 4.5vw, 4.5rem);
+  --sicher-oben:   max(var(--rand), env(safe-area-inset-top));
+  --sicher-rechts: max(var(--rand), env(safe-area-inset-right));
+  --sicher-unten:  max(var(--rand), env(safe-area-inset-bottom));
+  --sicher-links:  max(var(--rand), env(safe-area-inset-left));
   --spalte:        min(64ch, 92vw);
   --zeile:         1.62;
 
@@ -120,6 +124,10 @@ body {
 img, svg, canvas { display: block; max-width: 100%; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 input, textarea, select { font: inherit; color: inherit; }
+
+@media (hover: none) and (pointer: coarse) {
+  :where(a, button, input, textarea, label) { -webkit-tap-highlight-color: transparent; }
+}
 
 /* ── Papier ─────────────────────────────────────────────────────── */
 .papier {

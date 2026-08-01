@@ -318,6 +318,10 @@ export function raeumeAufbauen (opt) {
   function bindeRaum (r) {
     const el = r.el;
 
+    /* Impressum und Datenschutz sind bewusst lineare Lesedokumente.
+       Dort übernimmt der Browser das native Scrollen. */
+    if (el.classList.contains('raum--recht')) return;
+
     /* Rad / Trackpad: der Weg windet sich */
     el.addEventListener('wheel', e => {
       if (!aktiv || aktiv !== r) return;

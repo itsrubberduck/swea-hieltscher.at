@@ -283,8 +283,8 @@ html[data-js='an'] .feld__kreise a[data-oeffnet] {
 /* ── Werkzeug: drei Striche mit Wörtern ─────────────────────────── */
 #werkzeug {
   position: fixed;
-  right: var(--rand);
-  bottom: var(--rand);
+  right: var(--sicher-rechts);
+  bottom: var(--sicher-unten);
   z-index: var(--z-werkzeug);
   display: flex;
   gap: 1.4rem;
@@ -300,6 +300,7 @@ html[data-js='an'] .feld__kreise a[data-oeffnet] {
   text-transform: uppercase;
   color: var(--tusche-fern);
   transition: color var(--schnell);
+  min-height: 2.75rem;
   padding: .4em 0;
 }
 #werkzeug button:hover { color: var(--tusche); }
@@ -355,7 +356,7 @@ html[data-modus='raum'] #werkzeug { opacity: .45; }
 #werkzeug:hover { opacity: 1 !important; }
 
 @media (max-width: 40rem) {
-  #werkzeug { gap: 1rem; left: var(--rand); right: var(--rand); justify-content: space-between; }
+  #werkzeug { gap: 1rem; left: var(--sicher-links); right: var(--sicher-rechts); justify-content: space-between; }
   #werkzeug button { font-size: .62rem; letter-spacing: .14em; }
   .werkzeug__strich { width: 1.2em; }
 }
@@ -363,8 +364,8 @@ html[data-modus='raum'] #werkzeug { opacity: .45; }
 /* ── Zurück ins Feld ────────────────────────────────────────────── */
 #zurueck {
   position: fixed;
-  top: var(--rand);
-  right: var(--rand);
+  top: var(--sicher-oben);
+  right: var(--sicher-rechts);
   z-index: var(--z-werkzeug);
   display: inline-flex;
   align-items: center;
@@ -410,26 +411,67 @@ html[data-modus='raum'] #werkzeug { opacity: .45; }
 
 /* ── Schmale Schirme: das Feld wird ruhiger, aber bleibt Feld ───── */
 @media (max-width: 46rem) {
+  html[data-js='an'] .feld__ort {
+    top: var(--sicher-oben);
+    left: var(--sicher-links);
+  }
   html[data-js='an'] .feld__name {
-    top: auto;
-    bottom: calc(var(--rand) + 4.2rem);
-    font-size: clamp(2.6rem, 15vw, 5rem);
+    top: calc(var(--sicher-oben) + 2rem);
+    bottom: auto;
+    left: var(--sicher-links);
+    font-size: clamp(2.55rem, 13vw, 4.6rem);
+    line-height: .8;
   }
   html[data-js='an'] .feld__satz {
-    top: calc(var(--rand) + 2.6rem);
-    right: var(--rand);
-    left: var(--rand);
-    bottom: auto;
-    max-width: none;
-    font-size: 1rem;
+    display: none;
   }
-  html[data-js='an'] .feld__hinweis { bottom: calc(var(--rand) + 2.6rem); }
+  html[data-js='an'] .feld__hinweis { display: none; }
+  html[data-js='an'] .feld__kreise {
+    position: absolute;
+    top: calc(var(--sicher-oben) + 8.2rem);
+    right: var(--sicher-rechts);
+    bottom: calc(var(--sicher-unten) + 6.2rem);
+    left: var(--sicher-links);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    mask-image: linear-gradient(to bottom, transparent, #000 .7rem, #000 calc(100% - .7rem), transparent);
+    padding-block: .7rem;
+  }
+  html[data-js='an'] .feld__kreise ul {
+    display: grid;
+    gap: 0;
+  }
+  html[data-js='an'] .feld__kreise li { display: block; }
+  html[data-js='an'] .feld__kreise a {
+    position: static;
+    transform: none;
+    min-height: 3.25rem;
+    padding: .55rem 0;
+    grid-template-columns: minmax(6rem, 34%) 1fr;
+    align-items: center;
+    justify-items: start;
+    gap: .75rem;
+    text-align: left;
+    border-bottom: 1px solid color-mix(in srgb, var(--tusche) 13%, transparent);
+    opacity: 1;
+    animation: none;
+    will-change: auto;
+  }
   html[data-js='an'] .feld__kreise b {
-    font-size: clamp(1.15rem, 4.6vw, 1.7rem);
-    -webkit-text-stroke-width: .14em;
+    font-size: clamp(1.25rem, 5.2vw, 1.65rem);
+    -webkit-text-stroke: 0;
   }
-  html[data-js='an'] .feld__kreise i { font-size: .58rem; letter-spacing: .12em; }
-  html[data-js='an'] .feld__kreise a { padding: .8em 1em; }
+  html[data-js='an'] .feld__kreise i {
+    margin: 0;
+    font-size: .64rem;
+    line-height: 1.35;
+    letter-spacing: .1em;
+    opacity: 1;
+    transform: none;
+    -webkit-text-stroke: 0;
+  }
+  html[data-js='an'][data-fokus] .feld__kreise a:not([data-nah]) { opacity: 1; }
 }
 
 /* Sehr breite Schirme: mehr Luft, größere Kreise */
@@ -553,6 +595,19 @@ html[data-modus='raum'] #werkzeug { opacity: .45; }
 .empfang__nachsatz { font-size: .8rem; color: var(--tusche-fern); margin: .3rem 0 0; }
 
 @media (max-width: 36rem) {
-  .empfang__weg li { grid-template-columns: 1fr; gap: .5rem; }
-  .empfang__wahl { gap: 1.2rem; }
+  #empfang { padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); }
+  .empfang__blatt { gap: .8rem; }
+  #empfang h2 { font-size: clamp(1.75rem, 8vw, 2.4rem); }
+  .empfang__weg { gap: .65rem; }
+  .empfang__weg li { grid-template-columns: 3.2rem 1fr; gap: .65rem; padding-bottom: .65rem; font-size: .88rem; }
+  .empfang__frage { margin-top: .15rem; }
+  .empfang__wahl { gap: .8rem 1.2rem; }
+  .empfang__wahl button { min-height: 2.75rem; }
+}
+
+@media (max-width: 23rem), (max-height: 38rem) and (max-width: 46rem) {
+  html[data-js='an'] .feld__name { font-size: 2.35rem; }
+  html[data-js='an'] .feld__kreise { top: calc(var(--sicher-oben) + 7.1rem); }
+  .empfang__weg li { font-size: .8rem; line-height: 1.35; }
+  .empfang__nachsatz { display: none; }
 }
