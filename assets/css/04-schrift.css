@@ -1,0 +1,138 @@
+/* ══════════════════════════════════════════════════════════════════
+   04 — TEXTANSICHT
+   Wer nur lesen will, soll nur lesen. Ein gesetztes Buch, kein Erlebnis.
+   Dieselben Inhalte, dieselbe DOM — nur anders gezeigt.
+   ══════════════════════════════════════════════════════════════════ */
+
+html[data-schrift='an'] #pigment,
+html[data-schrift='an'] #linien,
+html[data-schrift='an'] #zurueck,
+html[data-schrift='an'] .papier__licht {
+  display: none !important;
+}
+
+html[data-schrift='an'] body {
+  background: var(--papier-hell);
+  overflow-y: auto;
+}
+
+html[data-schrift='an'] .papier__ton {
+  background: var(--papier-hell);
+}
+html[data-schrift='an'] .papier__faser { opacity: .22; }
+
+/* Das Feld wird zum Titelblatt */
+html[data-schrift='an'] #feld {
+  position: relative !important;
+  inset: auto !important;
+  display: grid !important;
+  align-content: center;
+  min-height: 82svh;
+  padding: var(--rand) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+  max-width: 74rem;
+  margin-inline: auto;
+}
+html[data-schrift='an'] .feld__ort,
+html[data-schrift='an'] .feld__name,
+html[data-schrift='an'] .feld__satz {
+  position: static !important;
+  text-align: start !important;
+  max-width: none;
+  animation: none !important;
+}
+html[data-schrift='an'] .feld__name { margin: 0 0 clamp(1.5rem,4vw,3rem) !important; max-width: 12ch; }
+html[data-schrift='an'] .feld__ort { margin: 0 0 1.2rem !important; }
+html[data-schrift='an'] .feld__satz { margin: 0 0 3rem !important; max-width: 30ch; }
+html[data-schrift='an'] .feld__hinweis { display: none; }
+
+/* Das Inhaltsverzeichnis wird lesbar */
+html[data-schrift='an'] .feld__kreise ul { display: grid !important; gap: .2em; }
+html[data-schrift='an'] .feld__kreise li { display: list-item !important; }
+html[data-schrift='an'] .feld__kreise a {
+  position: static !important;
+  transform: none !important;
+  opacity: 1 !important;
+  animation: none !important;
+  padding: .45em 0 !important;
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 10rem) 1fr;
+  align-items: baseline;
+  gap: 0 1.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--tusche) 10%, transparent);
+  transition: color var(--schnell);
+}
+html[data-schrift='an'] .feld__kreise a:hover { color: var(--zinnober); }
+html[data-schrift='an'] .feld__kreise b {
+  font-size: clamp(1.4rem, 4vw, 2.1rem) !important;
+  -webkit-text-stroke: 0 !important;
+  letter-spacing: -.02em !important;
+}
+html[data-schrift='an'] .feld__kreise i {
+  opacity: 1 !important;
+  transform: none !important;
+  -webkit-text-stroke: 0 !important;
+  margin: 0;
+}
+@media (max-width: 36rem) {
+  html[data-schrift='an'] .feld__kreise a { grid-template-columns: 1fr; gap: .1em; }
+}
+
+/* Alle Räume werden zu Kapiteln */
+html[data-schrift='an'] .raum {
+  position: static !important;
+  inset: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+  max-width: 74rem;
+  margin-inline: auto;
+  padding-block: clamp(3.5rem, 10vh, 7rem);
+  border-top: 1px solid color-mix(in srgb, var(--tusche) 12%, transparent);
+}
+html[data-schrift='an'] .raum > * { padding-inline: var(--rand) !important; }
+html[data-schrift='an'] .raum__kopf { padding-block: 0 clamp(1.5rem, 4vh, 2.5rem); }
+html[data-schrift='an'] .raum__zahl { display: none; }
+html[data-schrift='an'] .raum__titel { font-size: clamp(2.4rem, 8vw, 5rem) !important; }
+html[data-schrift='an'] .raum__fuss { padding-block: 2rem 0; }
+
+/* Bewegte Module ruhen in der Textansicht */
+html[data-schrift='an'] .saite,
+html[data-schrift='an'] .bagua__hinweis,
+html[data-schrift='an'] .atem__hinweis { display: none; }
+html[data-schrift='an'] .atem__scheibe { animation: none; transform: scale(.85); }
+html[data-schrift='an'] .bagua svg { width: min(46vmin, 22rem); }
+
+html[data-schrift='an'] #rand { display: grid !important; max-width: 74rem; margin-inline: auto; }
+
+/* Das Werkzeug bleibt, aber ruhig am Rand */
+html[data-schrift='an'] #werkzeug {
+  position: sticky;
+  bottom: var(--rand);
+  margin-inline-start: auto;
+  width: max-content;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DRUCK — falls jemand das wirklich ausdruckt
+   ══════════════════════════════════════════════════════════════════ */
+@media print {
+  #pigment, #linien, #werkzeug, #zurueck, .papier, .feld__hinweis,
+  .saite, .bagua, .atem, .ueberspringen { display: none !important; }
+  html, body { background: #fff !important; color: #000 !important; }
+  .raum {
+    position: static !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    overflow: visible !important;
+    page-break-before: always;
+    padding: 0 !important;
+  }
+  .feld__kreise { display: none; }
+  #feld { position: static !important; min-height: 0 !important; }
+  a[href^='http']::after { content: ' (' attr(href) ')'; font-size: .8em; color: #555; }
+}

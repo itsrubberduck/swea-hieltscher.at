@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="de" data-modus="feld">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Swea Hieltscher — Kreise</title>
+<meta name="description" content="Swea Hieltscher. Malerei, Musik, Bewegung, Gesundheit. Alles ist ein Kreis. Wien und Ollersbach.">
+<meta name="theme-color" content="#efe5d1">
+<meta name="color-scheme" content="light">
+
+<meta property="og:title" content="Swea Hieltscher — Kreise">
+<meta property="og:description" content="Malerei, Musik, Bewegung, Gesundheit. Alles ist ein Kreis.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="de_AT">
+
+<link rel="preload" href="assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/instrument-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/01-grund.css">
+<link rel="stylesheet" href="assets/css/02-feld.css">
+<link rel="stylesheet" href="assets/css/03-raum.css">
+<link rel="stylesheet" href="assets/css/04-schrift.css">
+</head>
+<body>
+
+<a class="ueberspringen" href="#dokument">Direkt zum Text</a>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAPIER — der Grund. Liegt unter allem.
+     ══════════════════════════════════════════════════════════════ -->
+<div class="papier" aria-hidden="true">
+  <div class="papier__ton"></div>
+  <div class="papier__faser"></div>
+  <div class="papier__licht"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PIGMENT — die gemalten Kreise (WebGL). Rein dekorativ.
+     Ohne WebGL bleibt die Fläche leer und die SVG-Ebene trägt alles.
+     ══════════════════════════════════════════════════════════════ -->
+<canvas id="pigment" aria-hidden="true"></canvas>
+<!-- Die Faser des Papiers liegt AUF der Farbe — sonst schwebt sie darüber. -->
+<div class="korn" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     LINIEN — Kandinsky-Ebene: Geraden, Kreisrisse, Rotoskop-Figur
+     ══════════════════════════════════════════════════════════════ -->
+<svg id="linien" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <filter id="zittern" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="tusche" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="3" result="k"/>
+      <feDisplacementMap in="SourceGraphic" in2="k" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- Aquarell: Kanten ausfransen, Pigment körnen, Ränder dunkler laufen lassen -->
+    <filter id="aquarell" x="-12%" y="-12%" width="124%" height="124%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.014 0.019" numOctaves="4" seed="11" result="gross"/>
+      <feDisplacementMap in="SourceGraphic" in2="gross" scale="26" xChannelSelector="R" yChannelSelector="G" result="verlaufen"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.22" numOctaves="3" seed="5" result="fein"/>
+      <feDisplacementMap in="verlaufen" in2="fein" scale="5" xChannelSelector="R" yChannelSelector="G" result="gefranst"/>
+      <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="19" result="korn"/>
+      <feColorMatrix in="korn" type="saturate" values="0" result="korngrau"/>
+      <feComposite in="korngrau" in2="gefranst" operator="in" result="korn-in"/>
+      <feBlend in="gefranst" in2="korn-in" mode="multiply" result="gekoernt"/>
+      <feComposite in="gekoernt" in2="gefranst" operator="atop"/>
+    </filter>
+  </defs>
+  <g id="linien-fern"></g>
+  <g id="linien-nah"></g>
+  <g id="roto"></g>
+</svg>
+
+<!-- ══════════════════════════════════════════════════════════════
+     DAS FELD — Ebene 0. Ohne JavaScript ist das schlicht das
+     Inhaltsverzeichnis eines langen, lesbaren Dokuments.
+     ══════════════════════════════════════════════════════════════ -->
+<header id="feld">
+
+  <p class="feld__ort"><span>Wien</span> <i>·</i> <span>Ollersbach</span></p>
+
+  <h1 class="feld__name">
+    <span class="feld__vorname">Swea</span>
+    <span class="feld__nachname">Hieltscher</span>
+  </h1>
+
+  <p class="feld__satz">
+    Ich male Kreise, ich gehe Kreise, ich spiele Kreise.<br>
+    <em>Es ist immer dieselbe&nbsp;Bewegung.</em>
+  </p>
+
+  <nav class="feld__kreise" aria-label="Bereiche">
+    <ul>
+      <li><a href="#raum-bild"      data-kreis="bild"><b>Bild</b><i>Malerei</i></a></li>
+      <li><a href="#raum-klang"     data-kreis="klang"><b>Klang</b><i>Violine &amp; Musikphysiologie</i></a></li>
+      <li><a href="#raum-kreis"     data-kreis="kreis"><b>Kreis</b><i>Bagua Zhang</i></a></li>
+      <li><a href="#raum-atem"      data-kreis="atem"><b>Atem</b><i>Qigong</i></a></li>
+      <li><a href="#raum-wurzel"    data-kreis="wurzel"><b>Wurzel</b><i>Gesundheitscoaching</i></a></li>
+      <li><a href="#raum-feld"      data-kreis="feldraum"><b>Feld</b><i>Aurachirurgie</i></a></li>
+      <li><a href="#raum-weg"       data-kreis="weg"><b>Weg</b><i>Über Swea</i></a></li>
+      <li><a href="#raum-begegnung" data-kreis="begegnung"><b>Begegnung</b><i>Termin &amp; Kontakt</i></a></li>
+    </ul>
+  </nav>
+
+  <p class="feld__hinweis" data-hinweis>
+    <span class="nur-zeiger">Nähere dich einem Kreis.</span>
+    <span class="nur-finger">Berühre einen Kreis.</span>
+  </p>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════
+     WERKZEUG — dezent, unten. Keine Buttons: Striche mit Wörtern.
+     ══════════════════════════════════════════════════════════════ -->
+<div id="werkzeug">
+  <button type="button" data-schalter="schrift" aria-pressed="false">
+    <span class="werkzeug__strich" aria-hidden="true"></span>Textansicht
+  </button>
+  <button type="button" data-schalter="ton" aria-pressed="false">
+    <span class="werkzeug__strich" aria-hidden="true"></span>Ton
+  </button>
+  <button type="button" data-schalter="ruhe" aria-pressed="false">
+    <span class="werkzeug__strich" aria-hidden="true"></span>Ruhe
+  </button>
+</div>
+
+<!-- Zurück ins Feld -->
+<button type="button" id="zurueck" hidden>
+  <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15"/><circle cx="20" cy="20" r="8"/><circle cx="20" cy="20" r="2.5"/></svg>
+  <span>ins Feld</span>
+</button>
+
+<!-- ══════════════════════════════════════════════════════════════
+     DOKUMENT — der wirkliche Inhalt. Immer im DOM, immer lesbar,
+     immer durchsuchbar. Die Räume sind nur seine Inszenierung.
+     ══════════════════════════════════════════════════════════════ -->
+<main id="dokument">
+
+<!-- ─────────────────────────────── BILD ─────────────────────────── -->
+<article class="raum" id="raum-bild" data-kreis="bild" data-geste="ringe">
+  <div class="raum__kopf">
+    <p class="raum__zahl" aria-hidden="true">01</p>
+    <p class="raum__art">Malerei</p>
+    <h2 class="raum__titel">Bild</h2>
+    <p class="raum__lead">Farbe ist nichts, was man aufträgt.<br><em>Sie ist etwas, das kreist.</em></p>
+  </div>
+
+  <div class="raum__leib">
+    <!-- PLATZHALTER-TEXT · bitte von Swea ersetzen -->
+    <p class="gross">Ich male in Ringen. Nicht weil ich es mir vorgenommen hätte — es passiert einfach. Der Pinsel setzt an und findet von selbst zurück zum Anfang.</p>
+
+    <p>Wenn ich vor der Leinwand stehe, arbeite ich nicht anders als beim Kreisgehen im Bagua oder beim Bogenstrich auf der Violine. Es gibt einen Mittelpunkt, und alles ordnet sich um ihn. Was von außen wie Komposition aussieht, ist von innen Atem.</p>
+
+    <p>Die Farben suche ich nicht aus. Sie kommen aus dem Zustand, in dem ich bin: Zinnober an lauten Tagen, tiefes Türkis, wenn ich lange still war. Manche Bilder brauchen vierzig Schichten, bis der Kern durchkommt.</p>
+
+    <blockquote>
+      <p>Ein Kreis hat keinen Anfang, den man verteidigen müsste.</p>
+    </blockquote>
+  </div>
+
+  <!-- Werke: Platzhalter. Ersetzen durch echte Aufnahmen in assets/img/werke/ -->
+  <div class="werke" data-werke>
+    <figure class="werk" data-palette="glut">
+      <div class="werk__flaeche" aria-hidden="true"></div>
+      <figcaption><b>Kreislauf I</b><i>Öl auf Leinwand · 90 × 120 cm</i></figcaption>
+    </figure>
+    <figure class="werk" data-palette="aquarell">
+      <div class="werk__flaeche" aria-hidden="true"></div>
+      <figcaption><b>Aufbrechen</b><i>Aquarell auf Bütten · 56 × 76 cm</i></figcaption>
+    </figure>
+    <figure class="werk" data-palette="kandinsky">
+      <div class="werk__flaeche" aria-hidden="true"></div>
+      <figcaption><b>Acht Richtungen</b><i>Acryl &amp; Tusche · 100 × 100 cm</i></figcaption>
+    </figure>
+    <figure class="werk" data-palette="erde">
+      <div class="werk__flaeche" aria-hidden="true"></div>
+      <figcaption><b>Spreewald, aus dem Gedächtnis</b><i>Öl auf Holz · 40 × 40 cm</i></figcaption>
+    </figure>
+  </div>
+
+  <div class="raum__fuss">
+    <p>Arbeiten sind nach Vereinbarung im Atelier zu sehen.</p>
+    <a class="strichlink" href="#raum-begegnung">Atelierbesuch anfragen</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────────── KLANG ────────────────────────── -->
+<article class="raum" id="raum-klang" data-kreis="klang" data-geste="saite">
+  <div class="raum__kopf">
+    <p class="raum__zahl" aria-hidden="true">02</p>
+    <p class="raum__art">Violine &amp; Musikphysiologie</p>
+    <h2 class="raum__titel">Klang</h2>
+    <p class="raum__lead">Seit meinem siebten Lebensjahr<br><em>spiele ich jeden Tag.</em></p>
+  </div>
+
+  <div class="artefakt">
+    <div class="saite">
+      <svg viewBox="0 0 1000 220" preserveAspectRatio="none" aria-hidden="true"><path d="M0 110 L1000 110"/></svg>
+    </div>
+    <p class="artefakt__wort">Streich darüber. Vier Saiten: g&nbsp;·&nbsp;d&nbsp;·&nbsp;a&nbsp;·&nbsp;e′</p>
+  </div>
+
+  <div class="raum__leib">
+    <p class="gross">Durch die Musik konnte ich verarbeiten, wofür ich keine Worte hatte. Ihre Schönheit und Kraft wurden zu einem täglichen Lebenselixier.</p>
+
+    <p>Der Weg führte mich in den Beruf: Musikerin, Violinpädagogin, Leiterin der Schostakowitsch-Musikschule in Berlin. Heute bin ich Direktorin der Musikschulen der Stadt Wien.</p>
+
+    <p>Die asymmetrische Haltung beim Violinspiel wurde zugleich zu einer großen körperlichen Herausforderung. Schon im Studium begann ich deshalb mit Yoga und Taiji. Später absolvierte ich an der Universität für Musik und darstellende Kunst Wien die Ausbildung zur <b>Musikphysiologin</b>.</p>
+
+    <p>Mir ist wichtig, dass Lehrende und Schüler:innen von Beginn an Zugang zu einem gelösten Körper finden — und damit zu einem freien Spiel ihres Instruments.</p>
+  </div>
+
+  <ul class="liste">
+    <li><b>Musiker:innengesundheit</b><span>Einzelcoaching für Spielende jeden Alters und Niveaus</span></li>
+    <li><b>Haltung &amp; Spielapparat</b><span>Asymmetrie verstehen statt bekämpfen</span></li>
+    <li><b>Auftrittsangst</b><span>Atem, Wahrnehmung, Zentrierung vor dem Podium</span></li>
+    <li><b>Fortbildung für Kollegien</b><span>Musikschulen, Konservatorien, Orchester</span></li>
+  </ul>
+
+  <div class="raum__fuss">
+    <a class="strichlink" href="#raum-begegnung">Coaching anfragen</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────────── KREIS ────────────────────────── -->
+<article class="raum" id="raum-kreis" data-kreis="kreis" data-geste="gehen">
+  <div class="raum__kopf">
+    <p class="raum__zahl" aria-hidden="true">03</p>
+    <p class="raum__art">Bagua Zhang</p>
+    <h2 class="raum__titel">Kreis</h2>
+    <p class="raum__lead">Die Acht-Trigramme-Hand.<br><em>Meditation, die geht.</em></p>
+  </div>
+
+  <div class="artefakt">
+    <div class="bagua">
+      <svg viewBox="0 0 600 460" aria-hidden="true">
+        <g class="bagua__ring"></g>
+        <g class="bagua__spur"></g>
+        <g class="bagua__trigramme"></g>
+        <g class="bagua__figur"></g>
+      </svg>
+    </div>
+    <p class="artefakt__wort">Führ sie um den Kreis. Acht Richtungen, eine Bewegung.</p>
+  </div>
+
+  <div class="raum__leib">
+    <p class="gross">Bagua Zhang gehört zu den inneren Stilen der chinesischen Kampfkunst. Es verbindet Selbstverteidigung mit Gesundheitsförderung — und mit Meditation in Bewegung.</p>
+
+    <p>Die charakteristischen Kreisformen mit ihren spiralig windenden Bewegungen schulen Beweglichkeit, Zentrierung und Präsenz. Eine Reihe von Aufwärmübungen bringt die Energie ins Fließen und bereitet gezielt verschiedene Regionen des Körpers vor.</p>
+
+    <p>Bei den anschließenden Kreisformen arbeiten wir mit drehenden und windenden Spiralbewegungen. So trainieren wir Körper und Geist, entspannt und zugleich voller Energie zu sein. Einzelne Übungen lassen sich hervorragend in den Alltag integrieren. Voraussetzung ist der Wille zur Veränderung.</p>
+  </div>
+
+  <ul class="liste">
+    <li><b>Bagua-Qigong</b><span>als Grundlage — Lösen, Öffnen, Sinken</span></li>
+    <li><b>Kreisformen</b><span>Gehen, Wenden, Wandeln</span></li>
+    <li><b>Partnerübungen</b><span>Anwendungen und Kontakt</span></li>
+  </ul>
+
+  <p class="klein">Für Anfänger:innen und Fortgeschrittene. In Präsenz in Wien und online.</p>
+
+  <div class="raum__fuss">
+    <a class="strichlink" href="#raum-begegnung">Kursplatz anfragen</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────────── ATEM ─────────────────────────── -->
+<article class="raum" id="raum-atem" data-kreis="atem" data-geste="atmen">
+  <div class="raum__kopf">
+    <p class="raum__zahl" aria-hidden="true">04</p>
+    <p class="raum__art">Qigong</p>
+    <h2 class="raum__titel">Atem</h2>
+    <p class="raum__lead">Bewegte Lebenspflege.<br><em>Reichlich und harmonisch fließendes Qi.</em></p>
+  </div>
+
+  <div class="artefakt">
+    <div class="atem">
+      <div class="atem__scheibe" aria-hidden="true"></div>
+      <p class="atem__wort" aria-hidden="true">ein</p>
+    </div>
+    <p class="artefakt__wort">Atme mit. Vier Sekunden ein, sechs aus.</p>
+  </div>
+
+  <div class="raum__leib">
+    <p class="gross">Qigong umfasst Übungen für Haltung, Bewegung, Atmung, Vorstellung und Geist — in Ruhe oder in Bewegung.</p>
+
+    <p>Reichlich und harmonisch fließendes Qi ist eine Voraussetzung für Gesundheit und Wohlbefinden. Die Vielfalt der Methoden lässt jeden Menschen den passenden Weg finden: sanft, kräftigend, alltagstauglich.</p>
+  </div>
+
+  <ul class="liste">
+    <li><b>Kranich-Qigong</b><span>&amp; Meridian Balancing</span></li>
+    <li><b>Die sechs Harmonien</b><span>Innen und Außen verbinden</span></li>
+    <li><b>Die sechs heilenden Laute</b><span>Klang als Organpflege</span></li>
+    <li><b>Rücken &amp; Wirbelsäule</b><span>Für alle, die viel sitzen oder tragen</span></li>
+  </ul>
+
+  <div class="raum__fuss">
+    <a class="strichlink" href="#raum-begegnung">Kursplatz anfragen</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────────── WURZEL ───────────────────────── -->
+<article class="raum" id="raum-wurzel" data-kreis="wurzel" data-geste="wurzeln">
+  <div class="raum__kopf">
+    <p class="raum__zahl" aria-hidden="true">05</p>
+    <p class="raum__art">Ganzheitliches Gesundheitscoaching</p>
+    <h2 class="raum__titel">Wurzel</h2>
+    <p class="raum__lead">Gesundheit fördern,<br><em>statt Krankheit verwalten.</em></p>
+  </div>
+
+  <div class="raum__leib">
+    <p class="gross">Unser Körper trägt eine tiefe Fähigkeit zur Selbstregulation in sich. Meine Arbeit setzt genau dort an: bei den Wurzeln.</p>
+
+    <p>In der Einzelberatung schauen wir gemeinsam auf die tragenden Säulen deiner Gesundheit — und entwickeln konkrete, alltagstaugliche Schritte, die zu deinem Leben passen. Die zugrundeliegende Ausbildung ist die zum Ganzheitlichen Gesundheitscoach nach Prof. Dr. Spitz an der Akademie für menschliche Medizin.</p>
+  </div>
+
+  <div class="artefakt">
+    <div class="wurzelwerk"><svg aria-hidden="true"></svg></div>
+    <p class="artefakt__wort">Fünf Säulen. Sie wachsen aus derselben Wurzel.</p>
+  </div>
+
+  <ul class="liste liste--wurzel">
+    <li><b>Ernährung</b><span>Ganzheitlich und anti-entzündlich</span></li>
+    <li><b>Bewegung</b><span>Regeneration und Schlaf</span></li>
+    <li><b>Licht</b><span>Vitamin D, Sonne, Naturverbundenheit</span></li>
+    <li><b>Ruhe</b><span>Stress, mentale Balance, innere Stille</span></li>
+    <li><b>Begleitung</b><span>Individuell, Schritt für Schritt</span></li>
+  </ul>
+
+  <p class="klein">Ob persönlich in Wien oder online von zuhause — die Zusammenarbeit richtet sich nach dir.</p>
+
+  <div class="raum__fuss">
+    <a class="strichlink" href="#raum-begegnung">Coaching-Termin buchen</a>
+    <a class="strichlink strichlink--extern" href="https://spitzen-ausbildung.de/" rel="noopener">Zur Ausbildung</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────────── FELD ─────────────────────────── -->
+<article class="raum" id="raum-feld" data-kreis="feldraum" data-geste="felder">
+  <div class="raum__kopf">
+    <p class="raum__zahl" aria-hidden="true">06</p>
+    <p class="raum__art">Aurachirurgie &amp; Informationsmedizin</p>
+    <h2 class="raum__titel">Feld</h2>
+    <p class="raum__lead">Dort, wo das Behandeln von Symptomen<br><em>allein nicht weiterhilft.</em></p>
+  </div>
+
+  <div class="raum__leib">
+    <p class="gross">Die Aurachirurgie nach Rudolf Kern arbeitet auf der energetischen Ebene des Menschen.</p>
+
+    <p>Sie widmet sich belastenden Mustern, karmischen Themen und der Anregung der Selbstheilungskräfte. Ausgebildet wurde ich bei Rudolf Kern und Dr. med. Mathias Künlen am Institut Kerngesund.</p>
+
+    <p>Energetische Arbeit lässt sich sowohl in Präsenz als auch als Fernbegleitung durchführen. Wir finden gemeinsam die Form, die dich am besten unterstützt.</p>
+
+    <p class="hinweis-medizinisch">Diese Arbeit versteht sich als Ergänzung — nicht als Ersatz — zu ärztlicher Behandlung. Sie stellt kein Heilversprechen dar.</p>
+  </div>
+
+  <div class="artefakt">
+    <div class="aura" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+    <p class="artefakt__wort">Schichten um einen Menschen herum.</p>
+  </div>
+
+  <div class="raum__fuss">
+    <a class="strichlink" href="#raum-begegnung">Sitzung anfragen</a>
+    <a class="strichlink strichlink--extern" href="https://www.kerngesund.ch/" rel="noopener">Institut Kerngesund</a>
+    <a class="strichlink strichlink--extern" href="https://www.aurachirurgie.me/" rel="noopener">Aurachirurgie</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────────── WEG ──────────────────────────── -->
+<article class="raum" id="raum-weg" data-kreis="weg" data-geste="linie">
+  <div class="raum__kopf">
+    <p class="raum__zahl" aria-hidden="true">07</p>
+    <p class="raum__art">Über Swea</p>
+    <h2 class="raum__titel">Weg</h2>
+    <p class="raum__lead">Ich gehe mit offenen Sinnen durchs Leben —<br><em>und meinen eigenen Weg.</em></p>
+  </div>
+
+  <ol class="weg" data-weg>
+    <li>
+      <h3>Der Spreewald</h3>
+      <p>Schon in meiner Kindheit entwickelte ich eine tiefe Verbundenheit zur Natur. In Wald und Flur des Spreewaldes nahe meiner Heimatstadt fand ich Wohlbefinden und viele glückliche Momente. Heute weiß ich: dort habe ich immer wieder Heilung für Seele, Körper und Geist erfahren.</p>
+    </li>
+    <li>
+      <h3>Die Violine</h3>
+      <p>Seit meinem siebten Lebensjahr begleitet mich das tägliche Spiel. Mein Körperbewusstsein und meine Wahrnehmung für die grenzenlosen Schwingungen der Musik wurden früh geschult.</p>
+    </li>
+    <li>
+      <h3>Berlin</h3>
+      <p>Musikerin, Violinpädagogin, Leiterin der Schostakowitsch-Musikschule.</p>
+    </li>
+    <li>
+      <h3>Yoga, Taiji, mdw</h3>
+      <p>Die asymmetrische Haltung beim Violinspiel wurde zur körperlichen Herausforderung. Schon im Studium begann ich deshalb mit Yoga und Taiji. Später die Ausbildung zur Musikphysiologin an der Universität für Musik und darstellende Kunst Wien.</p>
+    </li>
+    <li>
+      <h3>Um die Jahrtausendwende</h3>
+      <p>Gezielte Ausbildungen in Qigong, Taiji und Bagua Zhang. Was damals begann, wurde zu einem lebenslangen Lernen — und führte mich dazu, selbst Kurse und Fortbildungen in Körper- und Energiearbeit zu geben.</p>
+    </li>
+    <li>
+      <h3>Wien</h3>
+      <p>Als Direktorin der Musikschulen der Stadt Wien ist es mir wichtig, dass Lehrende und Schüler:innen von Beginn an Zugang zu einem gelösten Körper finden.</p>
+    </li>
+    <li>
+      <h3>Heute</h3>
+      <p>Ganzheitlicher Gesundheitscoach nach Prof. Dr. Spitz, Coach für Aurachirurgie und Informationsmedizin bei Rudolf Kern und Dr. med. Mathias Künlen. Und Malerin. Meine Erfahrungen und mein Wissen gebe ich weiter — in Kursen, in Einzelsettings, in Bildern.</p>
+    </li>
+  </ol>
+
+  <div class="raum__fuss">
+    <a class="strichlink" href="#raum-begegnung">Schreib mir</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────── BEGEGNUNG ────────────────────────── -->
+<article class="raum" id="raum-begegnung" data-kreis="begegnung" data-geste="vesica">
+  <div class="raum__kopf">
+    <p class="raum__zahl" aria-hidden="true">08</p>
+    <p class="raum__art">Termin &amp; Kontakt</p>
+    <h2 class="raum__titel">Begegnung</h2>
+    <p class="raum__lead">Zwei Kreise, die sich überschneiden.<br><em>Dazwischen entsteht der Raum.</em></p>
+  </div>
+
+  <form class="formular" data-formular action="mailto:info@gesundheitscoach-wien.at" method="post" enctype="text/plain">
+    <p class="formular__zeile">
+      <label for="f-name">Wie heißt du?</label>
+      <input id="f-name" name="Name" type="text" autocomplete="name" required>
+    </p>
+    <p class="formular__zeile">
+      <label for="f-mail">Wo erreiche ich dich?</label>
+      <input id="f-mail" name="E-Mail" type="email" autocomplete="email" required>
+    </p>
+    <fieldset class="formular__wahl">
+      <legend>Worum geht es?</legend>
+      <span><input type="radio" id="w1" name="Anliegen" value="Gesundheitscoaching"><label for="w1">Gesundheitscoaching</label></span>
+      <span><input type="radio" id="w2" name="Anliegen" value="Aurachirurgie"><label for="w2">Aurachirurgie</label></span>
+      <span><input type="radio" id="w3" name="Anliegen" value="Qigong"><label for="w3">Qigong</label></span>
+      <span><input type="radio" id="w4" name="Anliegen" value="Bagua Zhang"><label for="w4">Bagua Zhang</label></span>
+      <span><input type="radio" id="w5" name="Anliegen" value="Musiker:innengesundheit"><label for="w5">Musiker:innengesundheit</label></span>
+      <span><input type="radio" id="w6" name="Anliegen" value="Kunst"><label for="w6">Kunst</label></span>
+    </fieldset>
+    <fieldset class="formular__wahl formular__wahl--eng">
+      <legend>Wie?</legend>
+      <span><input type="radio" id="o1" name="Format" value="Präsenz in Wien"><label for="o1">Präsenz in Wien</label></span>
+      <span><input type="radio" id="o2" name="Format" value="Online"><label for="o2">Online</label></span>
+    </fieldset>
+    <p class="formular__zeile">
+      <label for="f-text">Was möchtest du mir sagen?</label>
+      <textarea id="f-text" name="Nachricht" rows="4"></textarea>
+    </p>
+    <p class="formular__senden">
+      <button type="submit"><span>Absenden</span></button>
+    </p>
+    <p class="klein formular__notiz">Öffnet dein E-Mail-Programm. Lieber direkt? <a href="mailto:info@gesundheitscoach-wien.at">info@gesundheitscoach-wien.at</a></p>
+  </form>
+
+  <div class="kontakt">
+    <p><a href="mailto:info@gesundheitscoach-wien.at">info@gesundheitscoach-wien.at</a></p>
+    <p><a href="tel:+4369918131950">+43 699 1 81 31 950</a></p>
+    <p>Schloßstraße 1/8 · 3061 Ollersbach · Österreich</p>
+  </div>
+</article>
+
+<!-- ─────────────────────────── RECHTLICHES ──────────────────────── -->
+<article class="raum raum--recht" id="raum-impressum" data-kreis="recht">
+  <div class="raum__kopf">
+    <h2 class="raum__titel raum__titel--klein">Impressum</h2>
+  </div>
+  <div class="raum__leib">
+    <p>Offenlegung gemäß § 5 ECG, § 14 UGB und § 25 Mediengesetz.</p>
+    <h3>Medieninhaberin &amp; für den Inhalt verantwortlich</h3>
+    <p>Swea Hieltscher<br>Schloßstraße 1/8<br>3061 Ollersbach, Österreich</p>
+    <h3>Kontakt</h3>
+    <p>E-Mail: <a href="mailto:info@gesundheitscoach-wien.at">info@gesundheitscoach-wien.at</a><br>Telefon: <a href="tel:+4369918131950">+43 699 1 81 31 950</a></p>
+    <h3>Unternehmensgegenstand</h3>
+    <p>Ganzheitliches Gesundheitscoaching, energetische Begleitung (Aurachirurgie), Qigong- und Bagua-Zhang-Kurse, Coaching für Musiker:innengesundheit sowie künstlerische Tätigkeit.</p>
+    <h3>Berufsrechtliche Angaben</h3>
+    <p>Berufsbezeichnung: Gesundheitscoach. Verliehen in Österreich. UID-Nr.: derzeit keine vorhanden.</p>
+    <h3>Wichtiger gesundheitlicher Hinweis</h3>
+    <p>Die angebotenen Coachings, energetischen Sitzungen und Bewegungskurse dienen der Förderung von Wohlbefinden und Gesundheit. Sie ersetzen keine ärztliche oder psychotherapeutische Diagnose oder Behandlung und stellen kein Heilversprechen dar. Bei gesundheitlichen Beschwerden wende dich bitte an eine Ärztin oder einen Arzt.</p>
+    <h3>Online-Streitbeilegung</h3>
+    <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung bereit: <a href="https://ec.europa.eu/consumers/odr/" rel="noopener">ec.europa.eu/consumers/odr</a>. Zur Teilnahme an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle sind wir nicht verpflichtet und grundsätzlich nicht bereit.</p>
+    <h3>Haftung für Inhalte &amp; Links</h3>
+    <p>Die Inhalte dieser Website wurden mit größter Sorgfalt erstellt. Für Richtigkeit, Vollständigkeit und Aktualität wird keine Gewähr übernommen. Diese Website enthält Links zu externen Websites Dritter; für deren Inhalte ist stets der jeweilige Anbieter verantwortlich.</p>
+    <h3>Bildnachweis</h3>
+    <p>Kunstwerke: Swea Hieltscher. Alle Rechte vorbehalten.</p>
+  </div>
+</article>
+
+<article class="raum raum--recht" id="raum-datenschutz" data-kreis="recht">
+  <div class="raum__kopf">
+    <h2 class="raum__titel raum__titel--klein">Datenschutz</h2>
+  </div>
+  <div class="raum__leib">
+    <p>Der Schutz deiner persönlichen Daten ist mir ein wichtiges Anliegen. Ich verarbeite personenbezogene Daten im Einklang mit der Datenschutz-Grundverordnung (DSGVO) und dem österreichischen Datenschutzgesetz (DSG).</p>
+    <h3>Verantwortliche</h3>
+    <p>Swea Hieltscher, Anschrift wie im Impressum. E-Mail: <a href="mailto:info@gesundheitscoach-wien.at">info@gesundheitscoach-wien.at</a></p>
+    <h3>Kontaktformular</h3>
+    <p>Das Formular auf dieser Seite überträgt keine Daten an diesen Server. Es öffnet dein eigenes E-Mail-Programm mit einer vorbereiteten Nachricht. Erst wenn du dort auf „Senden“ klickst, erreichen mich deine Angaben — auf demselben Weg wie eine gewöhnliche E-Mail.</p>
+    <p><b>Zweck:</b> Bearbeitung und Beantwortung deiner Anfrage. <b>Rechtsgrundlage:</b> Art. 6 Abs. 1 lit. b DSGVO sowie lit. f. <b>Speicherdauer:</b> bis der Zweck entfällt, längstens bis zum Ablauf gesetzlicher Aufbewahrungsfristen.</p>
+    <h3>Hosting &amp; Server-Logfiles</h3>
+    <!-- TODO: Hosting-Anbieter eintragen -->
+    <p>Diese Website wird bei <b>[Hosting-Anbieter eintragen]</b> gehostet. Beim Aufruf werden technische Zugriffsdaten (IP-Adresse, Zeitpunkt, abgerufene Seite, Browsertyp) in Server-Logfiles verarbeitet. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO.</p>
+    <h3>Schriften, Bilder, Skripte</h3>
+    <p>Sämtliche Schriftarten, Bilder und Programmbibliotheken werden direkt von diesem Server ausgeliefert. Es werden keine Daten an Google Fonts, CDNs oder andere externe Anbieter übertragen.</p>
+    <h3>Cookies &amp; lokale Speicherung</h3>
+    <p>Diese Website setzt keine Cookies und kein Tracking ein. Deine Einstellungen für Textansicht, Ton und Ruhe werden ausschließlich lokal in deinem Browser gespeichert und niemals übertragen.</p>
+    <h3>Deine Rechte</h3>
+    <p>Dir stehen die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch zu. Wende dich dafür an <a href="mailto:info@gesundheitscoach-wien.at">info@gesundheitscoach-wien.at</a>. Beschwerden richtest du an die österreichische Datenschutzbehörde (<a href="https://www.dsb.gv.at" rel="noopener">dsb.gv.at</a>).</p>
+  </div>
+</article>
+
+</main>
+
+<footer id="rand">
+  <p class="rand__signet" aria-hidden="true">
+    <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26"/><circle cx="30" cy="30" r="17"/><circle cx="30" cy="30" r="9"/><circle cx="30" cy="30" r="3"/></svg>
+  </p>
+  <nav aria-label="Rechtliches">
+    <a href="#raum-impressum">Impressum</a>
+    <a href="#raum-datenschutz">Datenschutz</a>
+    <a href="mailto:info@gesundheitscoach-wien.at">E-Mail</a>
+  </nav>
+  <p class="rand__zeile">© <span data-jahr>2026</span> Swea Hieltscher · Wien &amp; Ollersbach</p>
+</footer>
+
+<!-- Wer index.html doppelklickt, sieht nur das Notfall-Dokument:
+     Browser sperren ES-Module bei file://. Ein Hinweis erspart Rätselraten. -->
+<script>
+(function () {
+  if (location.protocol !== 'file:') return;
+  document.documentElement.setAttribute('data-datei', 'ja');
+  var p = document.createElement('p');
+  p.style.cssText = 'position:fixed;inset:auto 0 0 0;z-index:9999;margin:0;padding:.9rem 1.2rem;'
+    + 'background:#2a231a;color:#efe5d1;font:14px/1.5 system-ui,sans-serif;text-align:center';
+  p.innerHTML = 'Das hier ist nur die Textfassung — Browser sperren bei einer lokal ge&ouml;ffneten Datei '
+    + 'die Programmteile. Die eigentliche Seite liegt daneben als <b>vorschau.html</b>, '
+    + 'oder starte einen kleinen Server: <code>npx serve</code>';
+  addEventListener('DOMContentLoaded', function () { document.body.appendChild(p); });
+})();
+</script>
+<script type="module" src="assets/js/main.js"></script>
+<noscript>
+  <style>
+    #pigment,#linien,#werkzeug,#zurueck{display:none!important}
+    html{--js:0}
+    #feld .feld__kreise a{position:static!important;opacity:1!important;transform:none!important}
+  </style>
+</noscript>
+</body>
+</html>

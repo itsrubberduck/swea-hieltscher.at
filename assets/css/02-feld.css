@@ -1,0 +1,366 @@
+/* ══════════════════════════════════════════════════════════════════
+   02 — DAS FELD
+   Ebene 0. Ohne JavaScript: eine ruhige, gesetzte Titelseite.
+   Mit JavaScript: ein atmender Raum aus gemalten Kreisen.
+   ══════════════════════════════════════════════════════════════════ */
+
+#pigment {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-pigment);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.8s var(--kurve-weich);
+}
+html[data-pigment='an'] #pigment { opacity: 1; }
+/* Im Raum bleibt die Farbe als Atmosphäre hinter dem Text stehen. */
+html[data-modus='raum'] #pigment { opacity: .38; }
+html[data-modus='raum'] #linien { opacity: 0; transition: opacity var(--mittel); }
+html[data-modus='raum'] .korn { opacity: .22; }
+
+/* Die Faser liegt auf der Farbe, nicht darunter. */
+.korn {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-pigment) + 1);
+  pointer-events: none;
+  opacity: .34;
+  mix-blend-mode: multiply;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='260' height='260' filter='url(%23f)' opacity='0.5'/></svg>");
+  background-size: 260px 260px;
+}
+html[data-schrift='an'] .korn { display: none; }
+
+#linien {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-linien);
+  pointer-events: none;
+  overflow: visible;
+}
+#linien path, #linien line, #linien circle, #linien polyline {
+  fill: none;
+  stroke: var(--tusche);
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Der Kopf ───────────────────────────────────────────────────── */
+#feld {
+  position: relative;
+  z-index: var(--z-feld);
+  min-height: 100svh;
+  padding: var(--rand);
+  padding-block-end: calc(var(--rand) * 2);
+  display: grid;
+  align-content: center;
+}
+
+html[data-js='an'] #feld {
+  position: fixed;
+  inset: 0;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  transition: opacity var(--mittel) var(--kurve), filter var(--mittel) var(--kurve);
+}
+html[data-js='an'][data-modus='raum'] #feld {
+  opacity: 0;
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+/* Ort */
+.feld__ort {
+  font-size: .78rem;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+  margin: 0 0 1.2rem;
+}
+.feld__ort i { font-style: normal; opacity: .5; margin: 0 .3em; }
+
+html[data-js='an'] .feld__ort {
+  position: absolute;
+  top: var(--rand);
+  left: var(--rand);
+  margin: 0;
+}
+
+/* ── Der Name ───────────────────────────────────────────────────── */
+.feld__name {
+  font-size: clamp(3.4rem, 15.5vw, 15rem);
+  line-height: .82;
+  letter-spacing: -.045em;
+  margin: 0 0 clamp(1.5rem, 4vw, 3rem);
+  color: var(--tusche);
+  display: grid;
+  mix-blend-mode: multiply;
+}
+.feld__vorname { display: block; }
+.feld__nachname {
+  display: block;
+  padding-inline-start: .34em;
+  font-style: italic;
+  color: var(--rost);
+}
+
+@supports (font-variation-settings: normal) {
+  .feld__vorname   { font-variation-settings: 'SOFT' 60, 'WONK' 1, 'opsz' 144, 'wght' 300; }
+  .feld__nachname  { font-variation-settings: 'SOFT' 90, 'WONK' 1, 'opsz' 144, 'wght' 250; }
+  /* Die Schrift atmet mit. Sehr langsam, kaum merklich — aber merklich. */
+  html:not([data-ruhe='an']) .feld__vorname  { animation: schrift-atem calc(var(--atem) * 2) var(--kurve-weich) infinite; }
+  html:not([data-ruhe='an']) .feld__nachname { animation: schrift-atem calc(var(--atem) * 2) var(--kurve-weich) infinite; animation-delay: -1.9s; }
+}
+@keyframes schrift-atem {
+  0%, 100% { font-variation-settings: 'SOFT' 45, 'WONK' 1, 'opsz' 144, 'wght' 290; }
+  50%      { font-variation-settings: 'SOFT' 95, 'WONK' 1, 'opsz' 144, 'wght' 350; }
+}
+
+html[data-js='an'] .feld__name {
+  position: absolute;
+  top: calc(var(--rand) + 2.4rem);
+  left: var(--rand);
+  max-width: 12ch;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* ── Der Satz ───────────────────────────────────────────────────── */
+.feld__satz {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.05rem, .9rem + .9vw, 1.65rem);
+  line-height: 1.36;
+  max-width: 26ch;
+  color: var(--tusche-weich);
+  margin: 0 0 2.6rem;
+}
+.feld__satz em { color: var(--tuerkis); }
+
+html[data-js='an'] .feld__satz {
+  position: absolute;
+  right: var(--rand);
+  bottom: calc(var(--rand) + 3.6rem);
+  text-align: right;
+  margin: 0;
+  max-width: 24ch;
+  mix-blend-mode: multiply;
+}
+
+.feld__hinweis {
+  font-size: .78rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+  margin: 0;
+}
+html[data-js='an'] .feld__hinweis {
+  position: absolute;
+  left: var(--rand);
+  bottom: var(--rand);
+  opacity: .0;
+  animation: hinweis-kommt 1s var(--kurve) 2.6s forwards;
+}
+@keyframes hinweis-kommt { to { opacity: .75; } }
+html[data-js='an'][data-beruehrt='ja'] .feld__hinweis { opacity: 0; transition: opacity .4s; animation: none; }
+
+/* ══ Die Kreise ═══════════════════════════════════════════════════ */
+
+/* Ohne JS: eine gesetzte Liste, groß und ruhig. */
+.feld__kreise ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .1em;
+}
+.feld__kreise a {
+  display: grid;
+  text-decoration: none;
+  font-family: 'Fraunces', Georgia, serif;
+  line-height: 1;
+}
+.feld__kreise b {
+  font-size: clamp(1.8rem, 6vw, 3.4rem);
+  font-weight: 400;
+  letter-spacing: -.03em;
+}
+.feld__kreise i {
+  font-family: 'Instrument Sans', system-ui, sans-serif;
+  font-style: normal;
+  font-size: .72rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+  margin-top: .5em;
+}
+
+/* Mit JS: freischwebend, von der Kamera platziert. */
+html[data-js='an'] .feld__kreise ul { display: block; }
+html[data-js='an'] .feld__kreise li { display: contents; }
+
+html[data-js='an'] .feld__kreise a {
+  position: absolute;
+  left: 0; top: 0;
+  transform: translate3d(var(--x, 50vw), var(--y, 50vh), 0) translate(-50%, -50%) scale(var(--s, 1));
+  transform-origin: 50% 50%;
+  justify-items: center;
+  text-align: center;
+  padding: 1.1em 1.4em;
+  color: var(--tusche);
+  will-change: transform, opacity;
+  transition: color var(--schnell) var(--kurve-weich), opacity var(--mittel) var(--kurve);
+  opacity: 0;
+  animation: kreis-kommt 1.2s var(--kurve) both;
+  animation-delay: calc(var(--i, 0) * .09s + .7s);
+}
+@keyframes kreis-kommt { from { opacity: 0; } to { opacity: 1; } }
+
+html[data-js='an'] .feld__kreise b {
+  font-size: clamp(1.5rem, 1.1rem + 1.9vw, 3.1rem);
+  letter-spacing: -.035em;
+  /* Handgesetzt auf Farbe: Kontur in Papierton, kein Kasten, kein Schatten */
+  paint-order: stroke fill;
+  -webkit-text-stroke: .18em var(--papier-hell);
+  transition: -webkit-text-stroke-color var(--mittel), letter-spacing var(--mittel) var(--kurve);
+}
+html[data-js='an'] .feld__kreise i {
+  opacity: 0;
+  transform: translateY(-.4em);
+  transition: opacity var(--schnell) var(--kurve), transform var(--mittel) var(--kurve);
+  paint-order: stroke fill;
+  -webkit-text-stroke: .5em var(--papier-hell);
+  color: var(--tusche-weich);
+}
+
+/* Annäherung: das Wort öffnet sich */
+html[data-js='an'] .feld__kreise a[data-nah] {
+  color: var(--tusche);
+}
+html[data-js='an'] .feld__kreise a[data-nah] b { letter-spacing: .01em; }
+html[data-js='an'] .feld__kreise a[data-nah] i {
+  opacity: 1;
+  transform: none;
+  transition-delay: .06s;
+}
+
+/* Wenn ein Kreis nah ist, treten die anderen zurück */
+html[data-js='an'][data-fokus] .feld__kreise a:not([data-nah]) { opacity: .3; }
+
+/* Der gewählte Kreis, während die Kamera hineinfliegt */
+html[data-js='an'] .feld__kreise a[data-oeffnet] {
+  transition: opacity .3s .18s;
+  opacity: 0;
+}
+
+/* ── Werkzeug: drei Striche mit Wörtern ─────────────────────────── */
+#werkzeug {
+  position: fixed;
+  right: var(--rand);
+  bottom: var(--rand);
+  z-index: var(--z-werkzeug);
+  display: flex;
+  gap: 1.4rem;
+  align-items: center;
+}
+#werkzeug button {
+  display: inline-flex;
+  align-items: center;
+  gap: .55em;
+  font-size: .7rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+  transition: color var(--schnell);
+  padding: .4em 0;
+}
+#werkzeug button:hover { color: var(--tusche); }
+.werkzeug__strich {
+  display: block;
+  width: 1.9em;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left center;
+  transition: transform var(--mittel) var(--kurve), background var(--schnell);
+}
+#werkzeug button[aria-pressed='true'] { color: var(--zinnober); }
+#werkzeug button[aria-pressed='true'] .werkzeug__strich {
+  transform: scaleX(.34);
+  background: var(--zinnober);
+}
+
+html[data-modus='raum'] #werkzeug { opacity: .45; }
+#werkzeug:hover { opacity: 1 !important; }
+
+@media (max-width: 40rem) {
+  #werkzeug { gap: 1rem; left: var(--rand); right: var(--rand); justify-content: space-between; }
+  #werkzeug button { font-size: .62rem; letter-spacing: .14em; }
+  .werkzeug__strich { width: 1.2em; }
+}
+
+/* ── Zurück ins Feld ────────────────────────────────────────────── */
+#zurueck {
+  position: fixed;
+  top: var(--rand);
+  right: var(--rand);
+  z-index: var(--z-werkzeug);
+  display: inline-flex;
+  align-items: center;
+  gap: .7em;
+  font-size: .72rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+  mix-blend-mode: multiply;
+  transition: color var(--schnell);
+}
+#zurueck[hidden] { display: none; }
+#zurueck svg { width: 2.1rem; height: 2.1rem; overflow: visible; }
+#zurueck circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  transform-origin: 50% 50%;
+  transition: transform var(--mittel) var(--kurve), opacity var(--schnell);
+}
+#zurueck:hover { color: var(--zinnober); }
+#zurueck:hover circle:nth-child(1) { transform: scale(1.14) rotate(8deg); }
+#zurueck:hover circle:nth-child(2) { transform: scale(.82); }
+#zurueck:hover circle:nth-child(3) { transform: scale(1.9); opacity: .4; }
+
+@media (max-width: 40rem) {
+  #zurueck span { display: none; }
+}
+
+/* ── Schmale Schirme: das Feld wird ruhiger, aber bleibt Feld ───── */
+@media (max-width: 46rem) {
+  html[data-js='an'] .feld__name {
+    top: auto;
+    bottom: calc(var(--rand) + 4.2rem);
+    font-size: clamp(2.6rem, 15vw, 5rem);
+  }
+  html[data-js='an'] .feld__satz {
+    top: calc(var(--rand) + 2.6rem);
+    right: var(--rand);
+    left: var(--rand);
+    bottom: auto;
+    max-width: none;
+    font-size: 1rem;
+  }
+  html[data-js='an'] .feld__hinweis { bottom: calc(var(--rand) + 2.6rem); }
+  html[data-js='an'] .feld__kreise b {
+    font-size: clamp(1.15rem, 4.6vw, 1.7rem);
+    -webkit-text-stroke-width: .14em;
+  }
+  html[data-js='an'] .feld__kreise i { font-size: .58rem; letter-spacing: .12em; }
+  html[data-js='an'] .feld__kreise a { padding: .8em 1em; }
+}
+
+/* Sehr breite Schirme: mehr Luft, größere Kreise */
+@media (min-width: 100rem) {
+  :root { --rand: 5.5rem; }
+}

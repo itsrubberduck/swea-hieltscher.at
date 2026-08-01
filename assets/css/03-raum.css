@@ -1,0 +1,477 @@
+/* ══════════════════════════════════════════════════════════════════
+   03 — DIE RÄUME
+   Kein Dokument. Ein Raum.
+   Der Inhalt windet sich vom Mittelpunkt nach außen — eine Spirale,
+   wie ihre gemalten Ringe. Man bewegt sich hindurch.
+   ══════════════════════════════════════════════════════════════════ */
+
+#dokument { position: relative; z-index: var(--z-raum); }
+
+/* ── Ohne JavaScript: ein langes, gesetztes Dokument. Notausgang. ── */
+.raum {
+  padding: clamp(4rem, 12vh, 10rem) var(--rand);
+  border-top: 1px solid color-mix(in srgb, var(--tusche) 12%, transparent);
+}
+.raum:first-child { border-top: 0; }
+
+/* ══════════════════════════════════════════════════════════════════
+   MIT JAVASCRIPT — der Raum
+   ══════════════════════════════════════════════════════════════════ */
+html[data-js='an'] .raum {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-raum);
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .5s var(--kurve), visibility 0s linear .5s;
+  touch-action: none;
+  cursor: grab;
+  overscroll-behavior: none;
+}
+html[data-js='an'] .raum[data-offen] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity .6s var(--kurve) .18s, visibility 0s;
+}
+html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
+
+/* Die Tafel: der Bildraum, den die Kamera abfährt. */
+.tafel {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 0; height: 0;
+  transform-origin: 0 0;
+  transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) scale(var(--tk, 1));
+  will-change: transform;
+}
+
+/* ── Fragmente ──────────────────────────────────────────────────── */
+.fragment {
+  position: absolute;
+  left: 0; top: 0;
+  width: var(--fb, 30rem);
+  translate: calc(var(--fx, 0) * 1px - 50%) calc(var(--fy, 0) * 1px - 50%);
+  rotate: var(--fr, 0deg);
+  /* Ferne Fragmente sind nur Spuren. Nähe macht sie lesbar. */
+  opacity: var(--fo, .12);
+  filter: blur(var(--fbl, 3px));
+  transition: opacity .34s var(--kurve-weich), filter .34s var(--kurve-weich);
+  will-change: opacity, filter;
+}
+.fragment > * { margin: 0; }
+
+/* Jedes Fragment trägt eine schwache Spur, damit man weiß: da ist etwas. */
+.fragment::before {
+  content: '';
+  position: absolute;
+  left: -1.6rem; top: .55em;
+  width: .5rem; height: 1px;
+  background: var(--zinnober);
+  opacity: 0;
+  transform-origin: right;
+  transform: scaleX(0);
+  transition: transform .5s var(--kurve), opacity .3s;
+}
+.fragment[data-nah]::before { opacity: .8; transform: scaleX(1); }
+
+/* ── Kopf-Fragment: Titel, Art, Lead ────────────────────────────── */
+.fragment[data-art='kopf'] { width: min(34rem, 76vw); text-align: center; }
+.raum__kopf { display: grid; gap: .5rem; justify-items: center; }
+.raum__zahl {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1rem;
+  letter-spacing: .3em;
+  color: var(--tusche-fern);
+  margin: 0;
+}
+.raum__art {
+  font-size: .72rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+  margin: 0;
+}
+.raum__titel {
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: .86;
+  letter-spacing: -.045em;
+  margin: 0;
+  mix-blend-mode: multiply;
+}
+@supports (font-variation-settings: normal) {
+  .raum__titel { font-variation-settings: 'SOFT' 70, 'WONK' 1, 'opsz' 144, 'wght' 300; }
+}
+.raum__titel--klein { font-size: clamp(2.2rem, 6vw, 3.6rem); }
+.raum__lead {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.05rem, .95rem + .55vw, 1.55rem);
+  line-height: 1.3;
+  max-width: 26ch;
+  margin: .8rem auto 0;
+  color: var(--tusche-weich);
+}
+.raum__lead em { color: var(--zinnober); }
+
+/* ── Text-Fragmente ─────────────────────────────────────────────── */
+.fragment[data-art='text']  { width: min(30rem, 74vw); }
+.fragment[data-art='gross'] { width: min(26rem, 78vw); }
+.fragment[data-art='gross'] p,
+.fragment[data-art='gross'] {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.3rem, 1rem + 1.1vw, 2rem);
+  line-height: 1.28;
+  color: var(--tusche);
+}
+.fragment p { text-wrap: pretty; line-height: 1.58; }
+.fragment[data-art='text'] p { color: var(--tusche-weich); }
+
+.fragment[data-art='zitat'] { width: min(26rem, 78vw); }
+.fragment blockquote {
+  margin: 0;
+  padding: 0 0 0 1.2em;
+  border-inline-start: 1px solid var(--zinnober);
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.3rem, 1.05rem + 1vw, 2.1rem);
+  line-height: 1.24;
+  color: var(--rost);
+}
+.fragment blockquote p { margin: 0; font: inherit; }
+
+.fragment[data-art='hinweis'] { width: min(30rem, 76vw); }
+.hinweis-medizinisch, .klein {
+  font-size: .84rem;
+  color: var(--tusche-fern);
+  line-height: 1.5;
+}
+
+.fragment h3 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.3rem, 1.05rem + .8vw, 1.9rem);
+  font-weight: 400;
+  letter-spacing: -.02em;
+  margin: 0 0 .3em;
+}
+
+/* ── Punkte: einzelne Angebote / Stationen ──────────────────────── */
+.fragment[data-art='punkt'] { width: min(24rem, 74vw); }
+.fragment[data-art='punkt'] b {
+  display: block;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.4rem, 1.1rem + 1vw, 2.2rem);
+  letter-spacing: -.025em;
+  line-height: 1.05;
+  margin-bottom: .3em;
+}
+.fragment[data-art='punkt'] span {
+  display: block;
+  color: var(--tusche-weich);
+  font-size: .96rem;
+  line-height: 1.5;
+}
+
+/* ── Werke ──────────────────────────────────────────────────────── */
+.fragment[data-art='werk'] { width: min(22rem, 66vw); }
+.werk { margin: 0; display: grid; gap: .9rem; }
+.werk__flaeche {
+  aspect-ratio: 4 / 5;
+  filter: url(#aquarell) saturate(1.06);
+  transition: transform 1.1s var(--kurve);
+}
+.fragment[data-nah] .werk__flaeche { transform: scale(1.015); }
+.werk figcaption { display: grid; gap: .2em; }
+.werk figcaption b { font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 1.15em; }
+.werk figcaption i {
+  font-style: normal; font-size: .7rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--tusche-fern);
+}
+
+.werk[data-palette='glut'] .werk__flaeche {
+  background:
+    radial-gradient(circle at 50% 46%, var(--zinnober) 0 13%, transparent 13.6%),
+    radial-gradient(circle at 48% 47%, transparent 0 15%, var(--safran) 15% 21%, transparent 21.7%),
+    radial-gradient(circle at 51% 45%, transparent 0 23%, var(--karmin) 23% 28%, transparent 28.8%),
+    radial-gradient(circle at 49% 48%, transparent 0 30%, var(--tuerkis) 30% 37%, transparent 37.6%),
+    radial-gradient(circle at 52% 46%, transparent 0 39%, var(--creme) 39% 45%, transparent 45.5%),
+    radial-gradient(circle at 48% 45%, transparent 0 47%, var(--oliv) 47% 55%, transparent 55.6%),
+    radial-gradient(circle at 50% 47%, transparent 0 57%, var(--kobalt) 57% 67%, transparent 67.5%),
+    radial-gradient(circle at 50% 46%, transparent 0 69%, var(--rost) 69% 82%, transparent 82.5%),
+    var(--safran);
+}
+.werk[data-palette='aquarell'] .werk__flaeche {
+  background:
+    radial-gradient(ellipse 44% 36% at 50% 48%, #fbe9a8 0%, #f6c73b 42%, transparent 72%),
+    radial-gradient(ellipse 62% 52% at 44% 44%, transparent 30%, var(--zinnober) 58%, transparent 84%),
+    radial-gradient(ellipse 82% 70% at 52% 54%, transparent 44%, var(--karmin) 74%, transparent 96%),
+    radial-gradient(ellipse 40% 30% at 22% 24%, color-mix(in srgb, var(--karmin) 70%, transparent) 0%, transparent 70%),
+    radial-gradient(ellipse 36% 28% at 82% 78%, color-mix(in srgb, var(--rost) 60%, transparent) 0%, transparent 70%),
+    var(--papier-hell);
+}
+.werk[data-palette='kandinsky'] .werk__flaeche {
+  background:
+    radial-gradient(circle at 38% 34%, var(--karmin) 0 9%, transparent 9.4%),
+    radial-gradient(circle at 62% 42%, color-mix(in srgb, var(--oliv) 88%, transparent) 0 13%, transparent 13.4%),
+    radial-gradient(circle at 47% 58%, color-mix(in srgb, var(--rost) 82%, transparent) 0 17%, transparent 17.4%),
+    radial-gradient(circle at 72% 68%, var(--safran) 0 7%, transparent 7.4%),
+    radial-gradient(circle at 27% 66%, var(--kobalt) 0 5%, transparent 5.4%),
+    linear-gradient(58deg, transparent 40%, var(--safran) 40% 47%, transparent 47%),
+    linear-gradient(-32deg, transparent 44%, var(--kobalt) 44% 50%, transparent 50%),
+    radial-gradient(circle at 50% 50%, transparent 0 43%, var(--tusche) 43% 46%, transparent 46.4%),
+    var(--papier-hell);
+}
+.werk[data-palette='erde'] .werk__flaeche {
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 50% 52%, var(--oliv) 0 18%, transparent 18.6%),
+    radial-gradient(circle at 47% 50%, transparent 0 21%, var(--ocker) 21% 32%, transparent 32.7%),
+    radial-gradient(circle at 52% 53%, transparent 0 35%, var(--tuerkis) 35% 48%, transparent 48.6%),
+    radial-gradient(circle at 50% 51%, transparent 0 51%, var(--rost) 51% 68%, transparent 68.5%),
+    var(--tusche-weich);
+}
+
+/* ── Taten: die einzigen Dinge, die man anklickt ────────────────── */
+.fragment[data-art='tat'] { width: max-content; max-width: min(26rem, 76vw); }
+.strichlink {
+  position: relative;
+  display: inline-block;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.4rem, 1.1rem + 1.1vw, 2.3rem);
+  letter-spacing: -.02em;
+  text-decoration: none;
+  padding-bottom: .16em;
+  color: var(--tusche);
+  transition: color var(--schnell);
+}
+.strichlink::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0; bottom: 0;
+  height: 2px;
+  background: var(--zinnober);
+  transform-origin: right;
+  transform: scaleX(1);
+  transition: transform var(--mittel) var(--kurve);
+  border-radius: 2px;
+}
+.strichlink:hover { color: var(--zinnober); }
+.strichlink:hover::after { transform-origin: left; animation: strich-neu var(--mittel) var(--kurve); }
+@keyframes strich-neu { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+.strichlink--extern::before {
+  content: '↗'; font-size: .55em; vertical-align: super;
+  margin-inline-end: .22em; opacity: .5;
+}
+
+/* ── Der Kompass: wie viel dieses Raums ist gefunden? ───────────── */
+.kompass {
+  position: absolute;
+  left: var(--rand);
+  bottom: calc(var(--rand) + 2.6rem);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+.kompass svg { width: 2.6rem; height: 2.6rem; overflow: visible; }
+.kompass circle { fill: none; stroke-width: 1.4; }
+.kompass .kompass__bahn { stroke: color-mix(in srgb, var(--tusche) 20%, transparent); }
+.kompass .kompass__weg {
+  stroke: var(--zinnober);
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset .7s var(--kurve);
+}
+.kompass__text {
+  font-size: .68rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+}
+.kompass__text b { font-weight: 400; color: var(--tusche); font-variant-numeric: tabular-nums; }
+
+/* ── Die Geste: wie man sich bewegt ─────────────────────────────── */
+.geste {
+  position: absolute;
+  left: 50%;
+  bottom: var(--rand);
+  transform: translateX(-50%);
+  z-index: 5;
+  font-size: .68rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+  pointer-events: none;
+  text-align: center;
+  transition: opacity .6s var(--kurve);
+}
+.raum[data-bewegt] .geste { opacity: 0; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DIE ARTEFAKTE — je Raum ein Ding, das man anfassen kann
+   ══════════════════════════════════════════════════════════════════ */
+.fragment[data-art='modul'] { width: min(38rem, 84vw); }
+.artefakt { display: grid; justify-items: center; gap: 1rem; }
+.artefakt__wort {
+  font-size: .68rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+  margin: 0;
+  text-align: center;
+}
+
+/* KLANG — die Saite */
+.saite { width: 100%; cursor: crosshair; touch-action: none; }
+.saite svg { width: 100%; height: clamp(120px, 22vh, 240px); overflow: visible; }
+.saite path { fill: none; stroke: var(--tusche); stroke-width: 1.6; stroke-linecap: round; transition: stroke .3s; }
+.saite[data-schwingt] path { stroke: var(--zinnober); stroke-width: 2.4; }
+
+/* KREIS — Bagua */
+.bagua { width: 100%; touch-action: none; cursor: crosshair; }
+.bagua svg { width: 100%; height: auto; overflow: visible; }
+.bagua__ring circle { fill: none; stroke: color-mix(in srgb, var(--tusche) 22%, transparent); stroke-width: 1; stroke-dasharray: 2 8; }
+.bagua__trigramme rect { fill: color-mix(in srgb, var(--tusche) 45%, transparent); transition: fill .25s; }
+.bagua__trigramme g[data-aktiv] rect { fill: var(--zinnober); }
+.bagua__trigramme text {
+  font-family: 'Fraunces', Georgia, serif; font-size: 13px;
+  fill: var(--tusche-fern); text-anchor: middle; letter-spacing: .1em; transition: fill .25s;
+}
+.bagua__trigramme g[data-aktiv] text { fill: var(--zinnober); }
+.bagua__spur path { fill: none; stroke: var(--zinnober); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: .45; }
+.bagua__figur path { fill: none; stroke: var(--tusche); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ATEM — die Scheibe */
+.atem { display: grid; place-items: center; gap: 1.2rem; }
+.atem__scheibe {
+  width: min(34vmin, 17rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, var(--safran) 0 22%, transparent 22.5%),
+    radial-gradient(circle at 50% 50%, transparent 0 26%, var(--zinnober) 26% 44%, transparent 44.6%),
+    radial-gradient(circle at 50% 50%, transparent 0 48%, var(--karmin) 48% 70%, transparent 70.5%),
+    radial-gradient(circle at 50% 50%, transparent 0 74%, var(--tuerkis) 74% 100%);
+  filter: url(#aquarell);
+  animation: atem-zyklus 10s cubic-bezier(.37,0,.63,1) infinite;
+}
+@keyframes atem-zyklus {
+  0%   { transform: scale(.6);  opacity: .55; }
+  40%  { transform: scale(1);   opacity: 1;   }
+  100% { transform: scale(.6);  opacity: .55; }
+}
+.atem__wort {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.3rem, 3.4vw, 2.1rem);
+  letter-spacing: .22em;
+  color: var(--tuerkis);
+  margin: 0; min-height: 1.3em;
+}
+
+/* WURZEL — der wachsende Strang */
+.wurzelwerk svg { width: 100%; height: clamp(180px, 30vh, 320px); overflow: visible; }
+.wurzelwerk path { fill: none; stroke: var(--oliv); stroke-linecap: round; }
+
+/* FELD — die Aura */
+.aura { width: min(34vmin, 17rem); aspect-ratio: 1; position: relative; }
+.aura span {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--magenta) 55%, transparent);
+  animation: aura-puls 6s var(--kurve-weich) infinite;
+}
+.aura span:nth-child(2) { inset: 12%; border-color: color-mix(in srgb, var(--karmin) 55%, transparent); animation-delay: -.7s; }
+.aura span:nth-child(3) { inset: 24%; border-color: color-mix(in srgb, var(--zinnober) 55%, transparent); animation-delay: -1.4s; }
+.aura span:nth-child(4) { inset: 36%; border-color: color-mix(in srgb, var(--safran) 60%, transparent); animation-delay: -2.1s; }
+.aura span:nth-child(5) { inset: 48%; border-color: color-mix(in srgb, var(--tuerkis) 60%, transparent); animation-delay: -2.8s; }
+@keyframes aura-puls { 0%,100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.06); opacity: 1; } }
+
+/* BEGEGNUNG — das Formular liegt im Schnitt zweier Kreise */
+.fragment[data-art='formular'] { width: min(30rem, 84vw); }
+.formular { display: grid; gap: 1.4rem; position: relative; }
+.formular__zeile { display: grid; gap: .3rem; margin: 0; }
+.formular label { font-family: 'Fraunces', Georgia, serif; font-size: 1.05rem; color: var(--tusche-weich); }
+.formular input[type='text'],
+.formular input[type='email'],
+.formular textarea {
+  background: transparent; border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--tusche) 30%, transparent);
+  padding: .5em 0; border-radius: 0; resize: vertical;
+  font-family: 'Fraunces', Georgia, serif; font-size: 1.2rem; color: var(--tusche);
+  transition: border-color var(--schnell);
+}
+.formular input:focus, .formular textarea:focus {
+  outline: none; border-bottom-color: var(--zinnober); border-bottom-width: 2px; box-shadow: none;
+}
+.formular__wahl { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .45rem .6rem; }
+.formular__wahl legend {
+  font-family: 'Fraunces', Georgia, serif; font-size: 1.05rem;
+  color: var(--tusche-weich); padding: 0 0 .6rem; float: left; width: 100%;
+}
+.formular__wahl input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.formular__wahl label {
+  display: inline-block; padding: .38em .95em .42em;
+  border: 1px solid color-mix(in srgb, var(--tusche) 24%, transparent);
+  border-radius: 3em; font-family: 'Instrument Sans', sans-serif; font-size: .85rem;
+  cursor: pointer; color: var(--tusche-weich);
+  transition: border-color var(--schnell), color var(--schnell), background var(--schnell);
+}
+.formular__wahl label:hover { border-color: var(--tusche); color: var(--tusche); }
+.formular__wahl input:checked + label { border-color: var(--zinnober); background: var(--zinnober); color: var(--papier-hell); }
+.formular__wahl input:focus-visible + label { box-shadow: 0 0 0 2px var(--papier), 0 0 0 4px var(--zinnober); }
+.formular__senden { margin: 0; display: grid; justify-items: start; }
+.formular__senden button {
+  position: relative; display: inline-grid; place-items: center;
+  width: 9.5rem; aspect-ratio: 1; border-radius: 50%;
+  font-family: 'Fraunces', Georgia, serif; font-size: 1.2rem;
+  color: var(--tusche); transition: color var(--mittel);
+}
+.formular__senden button::before, .formular__senden button::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  border: 1.5px solid var(--zinnober);
+  transition: transform var(--mittel) var(--kurve), opacity var(--mittel);
+}
+.formular__senden button::after { inset: 14%; border-color: var(--tuerkis); opacity: .5; }
+.formular__senden button:hover::before { transform: scale(1.09) rotate(7deg); }
+.formular__senden button:hover::after  { transform: scale(.86) rotate(-11deg); opacity: 1; }
+.formular__senden button:hover { color: var(--zinnober); }
+
+.fragment[data-art='kontakt'] { width: min(26rem, 76vw); }
+.kontakt { display: grid; gap: .25rem; font-family: 'Fraunces', Georgia, serif; font-size: clamp(1.05rem, .95rem + .5vw, 1.4rem); }
+.kontakt p { margin: 0; }
+.kontakt a { text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--tusche) 25%, transparent); transition: border-color var(--schnell), color var(--schnell); }
+.kontakt a:hover { color: var(--zinnober); border-color: var(--zinnober); }
+
+/* ── Rand: nur ohne JS sichtbar ─────────────────────────────────── */
+#rand {
+  position: relative; z-index: var(--z-raum);
+  padding: clamp(3rem, 8vh, 6rem) var(--rand) calc(var(--rand) * 2.2);
+  display: grid; gap: 1.2rem; justify-items: start;
+  border-top: 1px solid color-mix(in srgb, var(--tusche) 12%, transparent);
+  font-size: .84rem; color: var(--tusche-fern);
+}
+html[data-js='an'] #rand { display: none; }
+.rand__signet svg { width: 2.6rem; height: 2.6rem; }
+.rand__signet circle { fill: none; stroke: var(--tusche-fern); stroke-width: 1; }
+#rand nav { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+#rand a { text-decoration: none; border-bottom: 1px solid currentColor; }
+#rand a:hover { color: var(--zinnober); }
+.rand__zeile { margin: 0; }
+
+/* ── Nur ohne JS gebraucht: Listen und Weg als Listen ───────────── */
+html:not([data-js='an']) .liste,
+html:not([data-js='an']) .weg { list-style: none; padding: 0; margin: 2.5rem 0; display: grid; gap: 1.2rem; max-width: 68ch; }
+html:not([data-js='an']) .liste b,
+html:not([data-js='an']) .weg h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 1.3em; display: block; }
+html:not([data-js='an']) .raum__leib > * { max-width: 62ch; }
+html:not([data-js='an']) .werke { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 3rem; margin: 3rem 0; }
+html:not([data-js='an']) .raum__fuss { display: flex; flex-wrap: wrap; gap: 1rem 2.5rem; margin-top: 3rem; }
+html:not([data-js='an']) .saite,
+html:not([data-js='an']) .bagua,
+html:not([data-js='an']) .atem { display: none; }

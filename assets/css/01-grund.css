@@ -1,0 +1,243 @@
+/* ══════════════════════════════════════════════════════════════════
+   01 — GRUND
+   Papier, Pigment, Schrift. Alles andere steht darauf.
+   ══════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'Fraunces';
+  src: url('../fonts/fraunces-var.woff2') format('woff2-variations'),
+       url('../fonts/fraunces-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022, U+2026, U+2030, U+2039-203A, U+20AC, U+2122, U+0100-017F;
+}
+@font-face {
+  font-family: 'Fraunces';
+  src: url('../fonts/fraunces-var-italic.woff2') format('woff2-variations'),
+       url('../fonts/fraunces-var-italic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('../fonts/instrument-sans-var.woff2') format('woff2-variations'),
+       url('../fonts/instrument-sans-var.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('../fonts/instrument-serif.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('../fonts/instrument-serif-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ── Pigmente ───────────────────────────────────────────────────── */
+:root {
+  /* Papier */
+  --papier:        #efe5d1;
+  --papier-tief:   #e4d6bc;
+  --papier-hell:   #f8f2e4;
+
+  /* Tusche */
+  --tusche:        #15120e;
+  --tusche-weich:  #3b342b;
+  --tusche-fern:   #6d6355;
+
+  /* Ihre Farben — aus den Bildern gelesen */
+  --zinnober:      #e0521c;
+  --safran:        #f0a81c;
+  --karmin:        #c31d55;
+  --magenta:       #d4359a;
+  --tuerkis:       #10635f;
+  --tuerkis-hell:  #2e948c;
+  --kobalt:        #1e3f8f;
+  --oliv:          #55701f;
+  --ocker:         #c58a2a;
+  --creme:         #f6edd8;
+  --rost:          #a33512;
+
+  /* Rhythmus */
+  --atem:          5.5s;      /* ein voller Atemzug */
+  --puls:          1.2s;
+
+  /* Maße */
+  --rand:          clamp(1.25rem, 4.5vw, 4.5rem);
+  --spalte:        min(64ch, 92vw);
+  --zeile:         1.62;
+
+  /* Ebenen */
+  --z-papier:      0;
+  --z-pigment:     1;
+  --z-linien:      2;
+  --z-feld:        3;
+  --z-raum:        4;
+  --z-werkzeug:    6;
+
+  --schnell:       .32s;
+  --mittel:        .68s;
+  --langsam:       1.4s;
+  --kurve:         cubic-bezier(.22,1,.28,1);
+  --kurve-weich:   cubic-bezier(.4,0,.2,1);
+
+  color-scheme: light;
+}
+
+/* ── Zurücksetzen ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: none;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--papier);
+  color: var(--tusche);
+  font-family: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: clamp(1rem, .92rem + .35vw, 1.14rem);
+  line-height: var(--zeile);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img, svg, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+input, textarea, select { font: inherit; color: inherit; }
+
+/* ── Papier ─────────────────────────────────────────────────────── */
+.papier {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-papier);
+  pointer-events: none;
+}
+
+/* Grundton mit ungleichmäßiger Wärme — kein flaches Beige */
+.papier__ton {
+  position: absolute;
+  inset: -10%;
+  background:
+    radial-gradient(58% 46% at 22% 18%, #f8f1df 0%, transparent 62%),
+    radial-gradient(52% 60% at 82% 74%, #ecdec2 0%, transparent 66%),
+    radial-gradient(70% 55% at 50% 108%, #e2d2b4 0%, transparent 70%),
+    var(--papier);
+}
+
+/* Bütten-Faser: zwei überlagerte Rauschmuster, eines gerichtet */
+.papier__faser {
+  position: absolute;
+  inset: 0;
+  opacity: .5;
+  mix-blend-mode: multiply;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='300' height='300' filter='url(%23f)' opacity='0.42'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.008 0.14' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='400' height='400' filter='url(%23g)' opacity='0.3'/></svg>");
+  background-size: 300px 300px, 400px 400px;
+}
+
+/* Vignette / Lichtfall — als läge das Blatt unter einer Lampe */
+.papier__licht {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 95% at 38% 30%, transparent 40%, rgba(70,52,28,.09) 78%, rgba(50,36,18,.17) 100%);
+}
+
+/* ── Schrift ────────────────────────────────────────────────────── */
+h1, h2, h3, .anzeige {
+  font-family: 'Fraunces', 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -.015em;
+  text-wrap: balance;
+  margin: 0;
+}
+@supports (font-variation-settings: normal) {
+  h1, h2, .anzeige {
+    font-variation-settings: 'SOFT' 40, 'WONK' 1, 'opsz' 120, 'wght' 340;
+  }
+  h3 { font-variation-settings: 'SOFT' 30, 'WONK' 0, 'opsz' 40, 'wght' 460; }
+}
+
+p { margin: 0 0 1.1em; }
+em { font-style: italic; }
+b, strong { font-weight: 600; }
+
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .22em; }
+
+::selection { background: var(--safran); color: var(--tusche); }
+
+/* ── Fokus: ein gezeichneter Ring, keine Systemkontur ───────────── */
+:where(a, button, input, textarea, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--papier), 0 0 0 4px var(--zinnober);
+  border-radius: .35em;
+}
+
+/* ── Hilfsklassen ───────────────────────────────────────────────── */
+.ueberspringen {
+  position: fixed;
+  top: .6rem; left: .6rem;
+  z-index: 999;
+  padding: .55em 1em;
+  background: var(--tusche);
+  color: var(--papier);
+  border-radius: 2em;
+  transform: translateY(-160%);
+  transition: transform var(--schnell) var(--kurve);
+}
+.ueberspringen:focus { transform: none; }
+
+.nur-schirm {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.klein {
+  font-size: .84em;
+  color: var(--tusche-fern);
+  letter-spacing: .01em;
+}
+
+/* Kontextabhängige Hinweise */
+.nur-finger { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .nur-zeiger { display: none; }
+  .nur-finger { display: inline; }
+}
+
+/* ── Ruhe: wer keine Bewegung will, bekommt keine ───────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+html[data-ruhe='an'] *, html[data-ruhe='an'] *::before, html[data-ruhe='an'] *::after {
+  animation-duration: .001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .12s !important;
+}
+html[data-ruhe='an'] #pigment { opacity: .55; }
