@@ -199,6 +199,66 @@ a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .22em
   border-radius: .35em;
 }
 
+/* ── Kreiszeiger: nur für eine präzise Maus ──────────────────────
+   Auf Touchgeräten bleibt er vollständig weg. In Textfeldern bleibt
+   der vertraute Textcursor erhalten. */
+@media (hover: hover) and (pointer: fine) {
+  html[data-cursor='an'],
+  html[data-cursor='an'] body,
+  html[data-cursor='an'] body * { cursor: none !important; }
+
+  html[data-cursor='an'] body :is(input, textarea) { cursor: text !important; }
+  html[data-cursor='an'] body select { cursor: default !important; }
+
+  .kreiszeiger {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 10000;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid var(--zinnober);
+    border-radius: 50%;
+    translate: -50% -50%;
+    opacity: 0;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    transition:
+      width var(--schnell) var(--kurve),
+      height var(--schnell) var(--kurve),
+      opacity .18s linear,
+      background-color var(--schnell) var(--kurve),
+      border-color var(--schnell) var(--kurve);
+    will-change: transform, width, height;
+  }
+  .kreiszeiger::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: .22rem;
+    height: .22rem;
+    border-radius: 50%;
+    background: var(--tusche);
+    translate: -50% -50%;
+    transition: transform var(--schnell) var(--kurve), opacity var(--schnell);
+  }
+  html[data-cursor-sichtbar='ja'] .kreiszeiger { opacity: .88; }
+  html[data-cursor-aktiv='ja'] .kreiszeiger {
+    width: 2.7rem;
+    height: 2.7rem;
+    border-color: var(--tuerkis);
+    background: color-mix(in srgb, var(--safran) 18%, transparent);
+  }
+  html[data-cursor-aktiv='ja'] .kreiszeiger::after { transform: scale(.55); }
+  html[data-cursor-gedrueckt='ja'] .kreiszeiger {
+    width: .9rem;
+    height: .9rem;
+    background: color-mix(in srgb, var(--zinnober) 22%, transparent);
+  }
+  html[data-cursor-text='ja'] .kreiszeiger { opacity: 0; }
+}
+
 /* ── Hilfsklassen ───────────────────────────────────────────────── */
 .ueberspringen {
   position: fixed;

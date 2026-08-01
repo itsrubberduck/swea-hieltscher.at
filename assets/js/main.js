@@ -13,6 +13,55 @@ import { klangAufbauen } from './klang.js';
 
 const wurzel = document.documentElement;
 
+/* ── Kreiszeiger ──────────────────────────────────────────────────
+   Ein eigener Cursor gehört zur gemalten Oberfläche, darf aber nie
+   Touchbedienung oder den Textcursor in Formularfeldern ersetzen. */
+const cursorMedium = matchMedia('(hover: hover) and (pointer: fine)');
+let kreiszeiger = null;
+
+function cursorEinrichten () {
+  if (!cursorMedium.matches || kreiszeiger) return;
+  kreiszeiger = document.createElement('span');
+  kreiszeiger.className = 'kreiszeiger';
+  kreiszeiger.setAttribute('aria-hidden', 'true');
+  document.body.append(kreiszeiger);
+  wurzel.dataset.cursor = 'an';
+}
+
+function cursorEntfernen () {
+  kreiszeiger && kreiszeiger.remove();
+  kreiszeiger = null;
+  delete wurzel.dataset.cursor;
+  delete wurzel.dataset.cursorSichtbar;
+  delete wurzel.dataset.cursorAktiv;
+  delete wurzel.dataset.cursorGedrueckt;
+  delete wurzel.dataset.cursorText;
+}
+
+cursorEinrichten();
+cursorMedium.addEventListener && cursorMedium.addEventListener('change', () => {
+  cursorMedium.matches ? cursorEinrichten() : cursorEntfernen();
+});
+
+addEventListener('pointermove', e => {
+  if (!kreiszeiger || e.pointerType === 'touch') return;
+  kreiszeiger.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+  wurzel.dataset.cursorSichtbar = 'ja';
+  const ziel = e.target instanceof Element ? e.target : null;
+  const aktiv = ziel && ziel.closest('a, button, label, [role="button"]');
+  const text = ziel && ziel.closest('input, textarea, select');
+  if (aktiv) wurzel.dataset.cursorAktiv = 'ja'; else delete wurzel.dataset.cursorAktiv;
+  if (text) wurzel.dataset.cursorText = 'ja'; else delete wurzel.dataset.cursorText;
+}, { passive: true });
+
+addEventListener('pointerdown', e => {
+  if (kreiszeiger && e.pointerType !== 'touch') wurzel.dataset.cursorGedrueckt = 'ja';
+}, { passive: true });
+addEventListener('pointerup', () => { delete wurzel.dataset.cursorGedrueckt; }, { passive: true });
+addEventListener('pointercancel', () => { delete wurzel.dataset.cursorGedrueckt; }, { passive: true });
+document.addEventListener('mouseleave', () => { delete wurzel.dataset.cursorSichtbar; });
+addEventListener('blur', () => { delete wurzel.dataset.cursorSichtbar; });
+
 /* ── Einstellungen: bleiben auf dem Gerät ───────────────────────── */
 const einst = {
   schrift: merke.lies('schrift', 'aus'),
