@@ -412,12 +412,35 @@ html[data-js='an'] .feld__satz {
 }
 
 .feld__hinweis {
-  font-size: .78rem;
-  letter-spacing: .2em;
+  font-size: .74rem;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--tusche-fern);
   margin: 0;
+  line-height: 2;
 }
+/* ── Tastenzeichen: überall dieselbe Form ───────────────────────── */
+.feld__hinweis b,
+.geste b,
+.empfang__zeichen b,
+.zurueck__taste {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.1em;
+  height: 1.85em;
+  padding: 0 .5em;
+  font-weight: 400;
+  font-size: .92em;
+  line-height: 1;
+  letter-spacing: .04em;
+  color: var(--tusche);
+  border: 1px solid color-mix(in srgb, var(--tusche) 26%, transparent);
+  border-radius: .42em;
+  vertical-align: middle;
+}
+.feld__hinweis b + b,
+.geste b + b,
+.empfang__zeichen b + b { margin-inline-start: .25em; }
 html[data-js='an'] .feld__hinweis {
   position: absolute;
   left: var(--rand);
@@ -528,6 +551,7 @@ html[data-js='an'] .feld__kreise a[data-oeffnet] {
   align-items: center;
 }
 #werkzeug button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: .55em;
@@ -539,6 +563,40 @@ html[data-js='an'] .feld__kreise a[data-oeffnet] {
   padding: .4em 0;
 }
 #werkzeug button:hover { color: var(--tusche); }
+
+/* Jeder Schalter sagt, was er tut — sobald man ihn ansieht. */
+.werkzeug__satz {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + .7em);
+  width: max-content;
+  max-width: 16rem;
+  text-align: right;
+  font-size: .74rem;
+  line-height: 1.42;
+  letter-spacing: .01em;
+  text-transform: none;
+  color: var(--tusche-weich);
+  background: color-mix(in srgb, var(--papier-hell) 92%, transparent);
+  padding: .5em .7em;
+  border-inline-end: 1px solid var(--zinnober);
+  opacity: 0;
+  transform: translateY(.35em);
+  pointer-events: none;
+  transition: opacity var(--schnell) var(--kurve), transform var(--mittel) var(--kurve);
+}
+#werkzeug button:hover .werkzeug__satz,
+#werkzeug button:focus-visible .werkzeug__satz { opacity: 1; transform: none; }
+
+
+@media (max-width: 46rem) {
+  .werkzeug__satz { max-width: 11rem; font-size: .68rem; }
+  #werkzeug button:first-child .werkzeug__satz { right: auto; left: 0; text-align: left;
+    border-inline-end: 0; border-inline-start: 1px solid var(--zinnober); }
+  #werkzeug button:nth-child(2) .werkzeug__satz { right: 50%; transform: translateX(50%); text-align: center; }
+  #werkzeug button:nth-child(2):hover .werkzeug__satz,
+  #werkzeug button:nth-child(2):focus-visible .werkzeug__satz { transform: translateX(50%); }
+}
 .werkzeug__strich {
   display: block;
   width: 1.9em;
@@ -592,8 +650,22 @@ html[data-modus='raum'] #werkzeug { opacity: .45; }
 #zurueck:hover circle:nth-child(2) { transform: scale(.82); }
 #zurueck:hover circle:nth-child(3) { transform: scale(1.9); opacity: .4; }
 
-@media (max-width: 40rem) {
-  #zurueck span { display: none; }
+.zurueck__taste { opacity: .7; }
+
+/* Der Rückweg darf nie zu suchen sein. */
+#zurueck {
+  animation: zurueck-kommt 1s var(--kurve) .5s both;
+}
+@keyframes zurueck-kommt {
+  from { opacity: 0; transform: translateX(1.2rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 46rem) {
+  #zurueck { font-size: .62rem; letter-spacing: .12em; gap: .5em; }
+  #zurueck svg { width: 1.7rem; height: 1.7rem; }
+  .zurueck__wort { max-width: 6.5em; line-height: 1.25; }
+  .zurueck__taste { display: none; }
 }
 
 /* ── Schmale Schirme: das Feld wird ruhiger, aber bleibt Feld ───── */
@@ -623,6 +695,126 @@ html[data-modus='raum'] #werkzeug { opacity: .45; }
 /* Sehr breite Schirme: mehr Luft, größere Kreise */
 @media (min-width: 100rem) {
   :root { --rand: 5.5rem; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   EMPFANG — der erste Besuch. Kein Kasten: ein Blatt auf dem Blatt.
+   ══════════════════════════════════════════════════════════════════ */
+#empfang {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--rand);
+  background: color-mix(in srgb, var(--papier) 82%, transparent);
+  backdrop-filter: blur(7px) saturate(.85);
+  -webkit-backdrop-filter: blur(7px) saturate(.85);
+  animation: empfang-kommt .9s var(--kurve) both;
+}
+#empfang[hidden] { display: none; }
+#empfang[data-geht] { animation: empfang-geht .7s var(--kurve) both; pointer-events: none; }
+@keyframes empfang-kommt { from { opacity: 0; } to { opacity: 1; } }
+@keyframes empfang-geht  { to { opacity: 0; } }
+
+.empfang__blatt {
+  width: min(38rem, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  display: grid;
+  gap: 1.1rem;
+  animation: blatt-kommt 1.1s var(--kurve) .12s both;
+}
+@keyframes blatt-kommt {
+  from { opacity: 0; transform: translateY(1.4rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+.empfang__oben {
+  font-size: .72rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--tusche-fern);
+  margin: 0;
+}
+#empfang h2 {
+  font-size: clamp(2rem, 1.5rem + 2.4vw, 3.6rem);
+  line-height: .96;
+  letter-spacing: -.035em;
+  margin: 0 0 .4rem;
+}
+@supports (font-variation-settings: normal) {
+  #empfang h2 { font-variation-settings: 'SOFT' 70, 'WONK' 1, 'opsz' 144, 'wght' 300; }
+}
+
+.empfang__weg {
+  list-style: none;
+  counter-reset: schritt;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.05rem;
+  max-width: 34rem;
+}
+.empfang__weg li {
+  display: grid;
+  grid-template-columns: 4.6rem 1fr;
+  gap: 0 1.1rem;
+  align-items: start;
+  color: var(--tusche-weich);
+  line-height: 1.5;
+  padding-bottom: 1.05rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--tusche) 11%, transparent);
+}
+.empfang__weg li:last-child { border-bottom: 0; padding-bottom: 0; }
+.empfang__zeichen {
+  display: flex;
+  align-items: center;
+  gap: .25em;
+  padding-top: .1em;
+}
+.empfang__zeichen svg { width: 1.7rem; height: 1.7rem; }
+.empfang__zeichen circle { fill: none; stroke: var(--zinnober); stroke-width: 1.2; }
+
+.empfang__frage {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.15rem, 1rem + .7vw, 1.65rem);
+  line-height: 1.3;
+  margin: .6rem 0 0;
+  color: var(--tusche);
+}
+.empfang__frage em { color: var(--tuerkis); font-size: .78em; }
+
+.empfang__wahl { display: flex; flex-wrap: wrap; gap: 1.8rem; margin: .2rem 0 0; }
+.empfang__wahl button {
+  position: relative;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.15rem, 1rem + .6vw, 1.55rem);
+  letter-spacing: -.015em;
+  padding-bottom: .18em;
+  color: var(--tusche);
+  transition: color var(--schnell);
+}
+.empfang__wahl button::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0; bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--zinnober);
+  transform-origin: right;
+  transition: transform var(--mittel) var(--kurve);
+}
+.empfang__wahl button:last-child::after { background: var(--tusche-fern); }
+.empfang__wahl button:hover { color: var(--zinnober); }
+.empfang__wahl button:hover::after { transform-origin: left; animation: strich-neu var(--mittel) var(--kurve); }
+
+.empfang__nachsatz { font-size: .8rem; color: var(--tusche-fern); margin: .3rem 0 0; }
+
+@media (max-width: 36rem) {
+  .empfang__weg li { grid-template-columns: 1fr; gap: .5rem; }
+  .empfang__wahl { gap: 1.2rem; }
 }
 
 
@@ -932,15 +1124,32 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
   bottom: var(--rand);
   transform: translateX(-50%);
   z-index: 5;
+  max-width: min(46rem, 92vw);
   font-size: .68rem;
-  letter-spacing: .22em;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--tusche-fern);
   pointer-events: none;
   text-align: center;
-  transition: opacity .6s var(--kurve);
+  line-height: 1.9;
+  transition: opacity .8s var(--kurve);
 }
-.raum[data-bewegt] .geste { opacity: 0; }
+.geste b {
+  font-weight: 400;
+  color: var(--tusche);
+  padding: .18em .45em .22em;
+  margin-inline-end: .1em;
+  border: 1px solid color-mix(in srgb, var(--tusche) 28%, transparent);
+  border-radius: .4em;
+  letter-spacing: .06em;
+}
+/* Verblasst, sobald man sich bewegt — verschwindet aber nie ganz. */
+.raum[data-bewegt] .geste { opacity: .32; }
+.raum[data-bewegt] .geste:hover { opacity: 1; }
+
+@media (max-width: 46rem) {
+  .geste { font-size: .6rem; letter-spacing: .1em; bottom: calc(var(--rand) + 2.4rem); }
+}
 
 /* ══════════════════════════════════════════════════════════════════
    DIE ARTEFAKTE — je Raum ein Ding, das man anfassen kann
@@ -976,11 +1185,26 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 .bagua__spur path { fill: none; stroke: var(--zinnober); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: .45; }
 .bagua__figur path { fill: none; stroke: var(--tusche); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ATEM — die Scheibe */
-.atem { display: grid; place-items: center; gap: 1.2rem; }
-.atem__scheibe {
+/* ATEM — die Scheibe.
+   Der Weg von klein nach groß muss so weit sein, dass der Körper
+   ihm folgen will. Ein zaghaftes Pulsieren atmet niemand mit. */
+.atem {
+  display: grid;
+  place-items: center;
+  gap: 1.4rem;
+  /* Platz für die volle Ausdehnung — sonst schneidet das Fragment ab. */
+  padding: min(20vmin, 9rem) 0;
+}
+.atem__buehne {
+  position: relative;
   width: min(34vmin, 17rem);
   aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+.atem__scheibe {
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 50%, var(--safran) 0 22%, transparent 22.5%),
@@ -988,20 +1212,38 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
     radial-gradient(circle at 50% 50%, transparent 0 48%, var(--karmin) 48% 70%, transparent 70.5%),
     radial-gradient(circle at 50% 50%, transparent 0 74%, var(--tuerkis) 74% 100%);
   filter: url(#aquarell);
+  transform-origin: 50% 50%;
   animation: atem-zyklus 10s cubic-bezier(.37,0,.63,1) infinite;
 }
+/* Ein mitlaufender Ring zeigt, wohin der Atem geht. */
+.atem__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--tuerkis) 45%, transparent);
+  transform: scale(1.62);
+  pointer-events: none;
+}
 @keyframes atem-zyklus {
-  0%   { transform: scale(.6);  opacity: .55; }
-  40%  { transform: scale(1);   opacity: 1;   }
-  100% { transform: scale(.6);  opacity: .55; }
+  0%   { transform: scale(.34); opacity: .48; }   /* ganz ausgeatmet */
+  40%  { transform: scale(1.6); opacity: 1;   }   /* 4 s ein         */
+  100% { transform: scale(.34); opacity: .48; }   /* 6 s aus         */
 }
 .atem__wort {
+  position: relative;
+  z-index: 2;
   font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(1.3rem, 3.4vw, 2.1rem);
-  letter-spacing: .22em;
-  color: var(--tuerkis);
-  margin: 0; min-height: 1.3em;
+  font-size: clamp(1.6rem, 4.4vw, 2.6rem);
+  letter-spacing: .26em;
+  color: var(--tusche);
+  margin: 0;
+  min-height: 1.3em;
+  paint-order: stroke fill;
+  -webkit-text-stroke: .3em var(--papier-hell);
+  transition: color .8s var(--kurve-weich);
 }
+.atem[data-phase='ein'] .atem__wort { color: var(--zinnober); }
+.atem[data-phase='aus'] .atem__wort { color: var(--tuerkis); }
 
 /* WURZEL — der wachsende Strang */
 .wurzelwerk svg { width: 100%; height: clamp(180px, 30vh, 320px); overflow: visible; }
@@ -1020,11 +1262,39 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 .aura span:nth-child(5) { inset: 48%; border-color: color-mix(in srgb, var(--tuerkis) 60%, transparent); animation-delay: -2.8s; }
 @keyframes aura-puls { 0%,100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.06); opacity: 1; } }
 
-/* BEGEGNUNG — das Formular liegt im Schnitt zweier Kreise */
-.fragment[data-art='formular'] { width: min(30rem, 84vw); }
+/* BEGEGNUNG — jede Frage ein eigenes Fragment.
+   Kein Formular am Stück: man beantwortet eine Frage nach der anderen. */
+.fragment[data-art='frage']  { width: min(26rem, 80vw); }
+.fragment[data-art='senden'] { width: max-content; }
+
+/* Der nächste Schritt — sichtbar bei jeder Frage. */
+.weiter {
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  margin-top: 1.5rem;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.1rem;
+  letter-spacing: -.01em;
+  color: var(--tusche-weich);
+  padding-bottom: .16em;
+  border-bottom: 1.5px solid color-mix(in srgb, var(--zinnober) 45%, transparent);
+  transition: color var(--schnell), border-color var(--schnell);
+}
+.weiter:hover { color: var(--zinnober); border-bottom-color: var(--zinnober); }
+.weiter__pfeil {
+  display: inline-block;
+  transition: transform var(--mittel) var(--kurve);
+}
+.weiter:hover .weiter__pfeil { transform: translateX(.35em); }
 .formular { display: grid; gap: 1.4rem; position: relative; }
-.formular__zeile { display: grid; gap: .3rem; margin: 0; }
-.formular label { font-family: 'Fraunces', Georgia, serif; font-size: 1.05rem; color: var(--tusche-weich); }
+.formular__zeile { display: grid; gap: .55rem; margin: 0; }
+.formular label {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.15rem, 1rem + .6vw, 1.6rem);
+  line-height: 1.2;
+  color: var(--tusche);
+}
 .formular input[type='text'],
 .formular input[type='email'],
 .formular textarea {
@@ -1039,8 +1309,9 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 }
 .formular__wahl { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .45rem .6rem; }
 .formular__wahl legend {
-  font-family: 'Fraunces', Georgia, serif; font-size: 1.05rem;
-  color: var(--tusche-weich); padding: 0 0 .6rem; float: left; width: 100%;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.15rem, 1rem + .6vw, 1.6rem);
+  color: var(--tusche); padding: 0 0 .8rem; float: left; width: 100%;
 }
 .formular__wahl input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .formular__wahl label {
@@ -1330,30 +1601,76 @@ html[data-schrift='an'] #werkzeug {
   </nav>
 
   <p class="feld__hinweis" data-hinweis>
-    <span class="nur-zeiger">Nähere dich einem Kreis.</span>
-    <span class="nur-finger">Berühre einen Kreis.</span>
+    <span class="nur-zeiger">Nähere dich einem Kreis &middot; oder <b>Tab</b> und <b>&crarr;</b></span>
+    <span class="nur-finger">Berühre einen Kreis</span>
   </p>
 </header>
+
+<!-- ══════════════════════════════════════════════════════════════
+     EMPFANG — einmal beim ersten Besuch. Erklärt den Weg und fragt
+     nach dem Klang. Danach nie wieder.
+     ══════════════════════════════════════════════════════════════ -->
+<div id="empfang" hidden>
+  <div class="empfang__blatt" role="dialog" aria-modal="true" aria-labelledby="empfang-titel">
+    <p class="empfang__oben">Bevor du beginnst</p>
+    <h2 id="empfang-titel">Diese Seite hat kein Menü.</h2>
+
+    <ol class="empfang__weg">
+      <li>
+        <span class="empfang__zeichen" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+        </span>
+        Nähere dich einem gemalten Kreis. Sein Wort öffnet sich — klick hinein.
+      </li>
+      <li>
+        <span class="empfang__zeichen"><b>←</b><b>→</b></span>
+        Drinnen windet sich der Inhalt nach außen. Die Pfeiltasten führen dich
+        von einem Fragment zum nächsten.
+      </li>
+      <li>
+        <span class="empfang__zeichen"><b>Esc</b></span>
+        bringt dich jederzeit zurück zu den Kreisen.
+      </li>
+    </ol>
+
+    <p class="empfang__frage">
+      Darf die Seite leise klingen?<br>
+      <em>Jeder Kreis hat einen eigenen Ton — er kommt, wenn du nahe bist.</em>
+    </p>
+    <p class="empfang__wahl">
+      <button type="button" data-empfang="ton">Ja, mit Klang</button>
+      <button type="button" data-empfang="still">Lieber still</button>
+    </p>
+    <p class="empfang__nachsatz">Beides lässt sich unten rechts jederzeit ändern.</p>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════════
      WERKZEUG — dezent, unten. Keine Buttons: Striche mit Wörtern.
      ══════════════════════════════════════════════════════════════ -->
 <div id="werkzeug">
   <button type="button" data-schalter="schrift" aria-pressed="false">
-    <span class="werkzeug__strich" aria-hidden="true"></span>Textansicht
+    <span class="werkzeug__strich" aria-hidden="true"></span>
+    <span class="werkzeug__wort">Lesen</span>
+    <span class="werkzeug__satz">Alles als ruhiges Dokument,<br>ohne Farbe und Bewegung</span>
   </button>
   <button type="button" data-schalter="ton" aria-pressed="false">
-    <span class="werkzeug__strich" aria-hidden="true"></span>Ton
+    <span class="werkzeug__strich" aria-hidden="true"></span>
+    <span class="werkzeug__wort">Klang</span>
+    <span class="werkzeug__satz">Jeder Kreis hat einen Ton.<br>Er kommt, wenn du nahe bist</span>
   </button>
   <button type="button" data-schalter="ruhe" aria-pressed="false">
-    <span class="werkzeug__strich" aria-hidden="true"></span>Ruhe
+    <span class="werkzeug__strich" aria-hidden="true"></span>
+    <span class="werkzeug__wort">Ruhe</span>
+    <span class="werkzeug__satz">Hält jede Bewegung an.<br>Die Farbe bleibt stehen</span>
   </button>
 </div>
 
 <!-- Zurück ins Feld -->
-<button type="button" id="zurueck" hidden>
+<button type="button" id="zurueck" hidden title="Zurück zu den Kreisen — oder einfach Esc drücken">
   <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15"/><circle cx="20" cy="20" r="8"/><circle cx="20" cy="20" r="2.5"/></svg>
-  <span>ins Feld</span>
+  <span class="zurueck__wort">zurück zu den Kreisen</span>
+  <span class="zurueck__taste" aria-hidden="true">Esc</span>
 </button>
 
 <!-- ══════════════════════════════════════════════════════════════
@@ -1500,11 +1817,14 @@ html[data-schrift='an'] #werkzeug {
   </div>
 
   <div class="artefakt">
-    <div class="atem">
-      <div class="atem__scheibe" aria-hidden="true"></div>
-      <p class="atem__wort" aria-hidden="true">ein</p>
+    <div class="atem" data-phase="ein">
+      <div class="atem__buehne">
+        <div class="atem__ring" aria-hidden="true"></div>
+        <div class="atem__scheibe" aria-hidden="true"></div>
+        <p class="atem__wort" aria-hidden="true">ein</p>
+      </div>
     </div>
-    <p class="artefakt__wort">Atme mit. Vier Sekunden ein, sechs aus.</p>
+    <p class="artefakt__wort">Atme mit. Die Farbe geht mit dir auf und zu —<br>vier Sekunden ein, sechs Sekunden aus.</p>
   </div>
 
   <div class="raum__leib">
@@ -1646,35 +1966,35 @@ html[data-schrift='an'] #werkzeug {
     <p class="raum__lead">Zwei Kreise, die sich überschneiden.<br><em>Dazwischen entsteht der Raum.</em></p>
   </div>
 
-  <form class="formular" data-formular action="mailto:info@gesundheitscoach-wien.at" method="post" enctype="text/plain">
+  <form class="formular" id="anfrage" data-formular action="mailto:info@gesundheitscoach-wien.at" method="post" enctype="text/plain">
     <p class="formular__zeile">
       <label for="f-name">Wie heißt du?</label>
-      <input id="f-name" name="Name" type="text" autocomplete="name" required>
+      <input id="f-name" form="anfrage" name="Name" type="text" autocomplete="name" required>
     </p>
     <p class="formular__zeile">
       <label for="f-mail">Wo erreiche ich dich?</label>
-      <input id="f-mail" name="E-Mail" type="email" autocomplete="email" required>
+      <input id="f-mail" form="anfrage" name="E-Mail" type="email" autocomplete="email" required>
     </p>
     <fieldset class="formular__wahl">
       <legend>Worum geht es?</legend>
-      <span><input type="radio" id="w1" name="Anliegen" value="Gesundheitscoaching"><label for="w1">Gesundheitscoaching</label></span>
-      <span><input type="radio" id="w2" name="Anliegen" value="Aurachirurgie"><label for="w2">Aurachirurgie</label></span>
-      <span><input type="radio" id="w3" name="Anliegen" value="Qigong"><label for="w3">Qigong</label></span>
-      <span><input type="radio" id="w4" name="Anliegen" value="Bagua Zhang"><label for="w4">Bagua Zhang</label></span>
-      <span><input type="radio" id="w5" name="Anliegen" value="Musiker:innengesundheit"><label for="w5">Musiker:innengesundheit</label></span>
-      <span><input type="radio" id="w6" name="Anliegen" value="Kunst"><label for="w6">Kunst</label></span>
+      <span><input type="radio" id="w1" form="anfrage" name="Anliegen" value="Gesundheitscoaching"><label for="w1">Gesundheitscoaching</label></span>
+      <span><input type="radio" id="w2" form="anfrage" name="Anliegen" value="Aurachirurgie"><label for="w2">Aurachirurgie</label></span>
+      <span><input type="radio" id="w3" form="anfrage" name="Anliegen" value="Qigong"><label for="w3">Qigong</label></span>
+      <span><input type="radio" id="w4" form="anfrage" name="Anliegen" value="Bagua Zhang"><label for="w4">Bagua Zhang</label></span>
+      <span><input type="radio" id="w5" form="anfrage" name="Anliegen" value="Musiker:innengesundheit"><label for="w5">Musiker:innengesundheit</label></span>
+      <span><input type="radio" id="w6" form="anfrage" name="Anliegen" value="Kunst"><label for="w6">Kunst</label></span>
     </fieldset>
     <fieldset class="formular__wahl formular__wahl--eng">
       <legend>Wie?</legend>
-      <span><input type="radio" id="o1" name="Format" value="Präsenz in Wien"><label for="o1">Präsenz in Wien</label></span>
-      <span><input type="radio" id="o2" name="Format" value="Online"><label for="o2">Online</label></span>
+      <span><input type="radio" id="o1" form="anfrage" name="Format" value="Präsenz in Wien"><label for="o1">Präsenz in Wien</label></span>
+      <span><input type="radio" id="o2" form="anfrage" name="Format" value="Online"><label for="o2">Online</label></span>
     </fieldset>
     <p class="formular__zeile">
       <label for="f-text">Was möchtest du mir sagen?</label>
-      <textarea id="f-text" name="Nachricht" rows="4"></textarea>
+      <textarea id="f-text" form="anfrage" name="Nachricht" rows="4"></textarea>
     </p>
     <p class="formular__senden">
-      <button type="submit"><span>Absenden</span></button>
+      <button type="submit" form="anfrage"><span>Absenden</span></button>
     </p>
     <p class="klein formular__notiz">Öffnet dein E-Mail-Programm. Lieber direkt? <a href="mailto:info@gesundheitscoach-wien.at">info@gesundheitscoach-wien.at</a></p>
   </form>
@@ -55288,7 +55608,7 @@ const P = {
 };
 
 /** Der Anteil der halben Sichthöhe, den ein Kreis mit r = 1 einnimmt. */
-const MASS = { weit: 0.30, hoch: 0.30 };
+const MASS = { weit: 0.30, hoch: 0.24 };
 
 /** Acht Kreise. Reihenfolge = Reihenfolge im HTML. */
 const KREISE = [
@@ -55297,56 +55617,56 @@ const KREISE = [
     farben: [P.karmin, P.safran, P.tuerkis, P.zinnober, P.sand, P.rost, P.ocker, P.magenta],
     ringe: 8, saat: 11, luecke: 0, lueckeWo: 0,
     weit: { x: -0.34, y:  0.02, z: -0.5, r: 1.30 },
-    hoch: { x: -0.10, y:  0.42, z: -0.4, r: 0.85 }
+    hoch: { x: -0.10, y:  0.24, z: -0.4, r: 1.15 }
   },
   {
     id: 'klang', ziel: 'raum-klang',
     farben: [P.kobalt, P.tuerkisH, P.sand, P.tiefblau, P.kobalt, P.ocker],
     ringe: 6, saat: 23, luecke: 0.55, lueckeWo: -0.9,
     weit: { x:  0.80, y:  0.52, z: -1.4, r: 0.95 },
-    hoch: { x:  0.28, y:  0.12, z: -1.2, r: 0.62 }
+    hoch: { x:  0.30, y: -0.10, z: -1.2, r: 0.78 }
   },
   {
     id: 'kreis', ziel: 'raum-kreis',
     farben: [P.tusche, P.rost, P.ocker, P.tusche, P.sand],
     ringe: 5, saat: 37, luecke: 0, lueckeWo: 0,
     weit: { x:  1.34, y: -0.16, z:  0.3, r: 0.72 },
-    hoch: { x: -0.26, y: -0.14, z:  0.2, r: 0.55 }
+    hoch: { x: -0.30, y: -0.36, z:  0.2, r: 0.72 }
   },
   {
     id: 'atem', ziel: 'raum-atem',
     farben: [P.tuerkis, P.safran, P.tuerkisH, P.sand],
     ringe: 4, saat: 53, luecke: 0.4, lueckeWo: 2.3,
     weit: { x: -1.20, y: -0.62, z:  0.7, r: 0.58 },
-    hoch: { x:  0.24, y: -0.40, z:  0.5, r: 0.46 }
+    hoch: { x:  0.26, y: -0.56, z:  0.5, r: 0.58 }
   },
   {
     id: 'wurzel', ziel: 'raum-wurzel',
     farben: [P.tiefgruen, P.ocker, P.oliv, P.sand, P.oliv],
     ringe: 5, saat: 71, luecke: 0, lueckeWo: 0,
     weit: { x:  0.20, y: -0.80, z: -0.7, r: 0.80 },
-    hoch: { x: -0.20, y: -0.62, z: -0.6, r: 0.52 }
+    hoch: { x:  0.30, y:  0.56, z: -0.9, r: 0.60 }
   },
   {
     id: 'feldraum', ziel: 'raum-feld',
     farben: [P.magenta, P.karmin, P.safran, P.altrosa, P.kobalt, P.magenta, P.sand],
     ringe: 7, saat: 89, luecke: 0, lueckeWo: 0,
     weit: { x:  1.44, y:  0.92, z: -2.2, r: 0.62 },
-    hoch: { x:  0.30, y:  0.62, z: -1.8, r: 0.44 }
+    hoch: { x: -0.31, y:  0.62, z: -1.8, r: 0.50 }
   },
   {
     id: 'weg', ziel: 'raum-weg',
     farben: [P.ocker, P.rost, P.sand],
     ringe: 3, saat: 103, luecke: 0.7, lueckeWo: 1.2,
     weit: { x: -0.14, y:  0.74, z: -2.6, r: 0.50 },
-    hoch: { x: -0.32, y:  0.70, z: -2.4, r: 0.36 }
+    hoch: { x:  0.03, y:  0.80, z: -2.4, r: 0.38 }
   },
   {
     id: 'begegnung', ziel: 'raum-begegnung',
     farben: [P.zinnober, P.tuerkisH, P.magenta, P.sand],
     ringe: 4, saat: 127, luecke: 0, lueckeWo: 0,
     weit: { x:  0.62, y: -0.34, z:  1.0, r: 0.46 },
-    hoch: { x:  0.06, y: -0.86, z:  0.8, r: 0.38 }
+    hoch: { x: -0.26, y: -0.72, z:  0.8, r: 0.46 }
   }
 ];
 
@@ -55543,6 +55863,178 @@ function figurZeichnen (phase, bild, drehung = 1, innenLinks = true) {
 function spurZeichnen (punkte, bild) {
   if (punkte.length < 2) return '';
   return kochLinie(punkte, bild, 91, 1.1);
+}
+
+
+/* ── assets/js/klang.js ─────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   KLANG — die Seite klingt leise mit.
+
+   Jeder Kreis hat einen eigenen Ton. Näherst du dich einem Kreis,
+   schwillt sein Ton an; entfernst du dich, verklingt er. Darunter
+   liegt ein sehr leiser Grundton, der mit dem Atem heller und
+   dunkler wird. Nichts davon ist Musik im Vordergrund — es ist der
+   Raumton eines Ateliers.
+
+   Alles bleibt aus, bis jemand den Klang einschaltet. Browser
+   erlauben Ton ohnehin erst nach einer Berührung.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Pentatonik auf A — es kann nichts falsch klingen, egal welche
+   Kreise gleichzeitig anschwellen. */
+const TOENE = {
+  bild:      220.00,  // a
+  klang:     329.63,  // e'
+  kreis:     146.83,  // d
+  atem:      261.63,  // c'
+  wurzel:    110.00,  // A
+  feldraum:  392.00,  // g'
+  weg:       196.00,  // g
+  begegnung: 293.66   // d'
+};
+
+/** Die vier Saiten der Violine — für den Klang-Raum. */
+const SAITEN = [196.00, 293.66, 440.00, 659.25];
+
+function klangAufbauen (atem) {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+
+  let hof = null, meister = null, filter = null;
+  let grund = null, grundGain = null;
+  const stimmen = new Map();
+  let an = false, aufgebaut = false;
+
+  function aufbauen () {
+    if (aufgebaut) return;
+    hof = new AC();
+
+    meister = hof.createGain();
+    meister.gain.value = 0;
+    filter = hof.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 2200;
+    filter.Q.value = 0.4;
+    filter.connect(meister);
+    meister.connect(hof.destination);
+
+    /* Grundton: zwei leicht verstimmte Oszillatoren — das trägt. */
+    grundGain = hof.createGain();
+    grundGain.gain.value = 0.055;
+    grundGain.connect(filter);
+    grund = [55, 55.15, 82.5].map((hz, i) => {
+      const o = hof.createOscillator();
+      o.type = i === 2 ? 'sine' : 'triangle';
+      o.frequency.value = hz;
+      const g = hof.createGain();
+      g.gain.value = i === 2 ? 0.35 : 1;
+      o.connect(g); g.connect(grundGain);
+      o.start();
+      return o;
+    });
+
+    /* Für jeden Kreis eine schlafende Stimme. */
+    for (const [id, hz] of Object.entries(TOENE)) {
+      const o = hof.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = hz;
+      const ob = hof.createOscillator();     // eine Quinte darüber, sehr leise
+      ob.type = 'sine';
+      ob.frequency.value = hz * 1.5;
+      const g = hof.createGain();
+      g.gain.value = 0;
+      const gb = hof.createGain();
+      gb.gain.value = 0.28;
+      o.connect(g); ob.connect(gb); gb.connect(g);
+      g.connect(filter);
+      o.start(); ob.start();
+      stimmen.set(id, g);
+    }
+    aufgebaut = true;
+  }
+
+  /* Der Grundton atmet mit. */
+  let uhr = null;
+  function atmenLassen () {
+    if (uhr) return;
+    uhr = setInterval(() => {
+      if (!an || !hof || hof.state !== 'running') return;
+      const a = atem.wert();                     // -1 .. 1
+      filter.frequency.setTargetAtTime(1500 + (a + 1) * 900, hof.currentTime, 0.6);
+      grundGain.gain.setTargetAtTime(0.040 + (a + 1) * 0.012, hof.currentTime, 0.6);
+    }, 220);
+  }
+
+  /** Ein einzelner, angeschlagener Ton. */
+  function schlagen (hz, dauer = 1.8, art = 'triangle', staerke = 0.10) {
+    if (!an || !hof) return;
+    if (hof.state === 'suspended') hof.resume();
+    const o = hof.createOscillator(), g = hof.createGain();
+    o.type = art; o.frequency.value = hz;
+    const t = hof.currentTime;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(staerke, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dauer);
+    o.connect(g); g.connect(filter);
+    o.start(t); o.stop(t + dauer + 0.05);
+  }
+
+  return {
+    get an () { return an; },
+
+    einschalten () {
+      aufbauen();
+      if (hof.state === 'suspended') hof.resume();
+      an = true;
+      atmenLassen();
+      meister.gain.setTargetAtTime(0.85, hof.currentTime, 0.5);
+      /* Damit sofort klar ist, dass es wirkt: eine ruhige Quinte. */
+      schlagen(220, 2.4, 'triangle', 0.09);
+      setTimeout(() => schlagen(329.63, 3.0, 'triangle', 0.07), 260);
+    },
+
+    ausschalten () {
+      if (!aufgebaut) { an = false; return; }
+      an = false;
+      meister.gain.setTargetAtTime(0.0001, hof.currentTime, 0.35);
+      stimmen.forEach(g => g.gain.setTargetAtTime(0, hof.currentTime, 0.3));
+    },
+
+    /** Annäherung an einen Kreis: seine Stimme schwillt an. */
+    naehe (id, v) {
+      if (!an || !aufgebaut) return;
+      const g = stimmen.get(id);
+      if (!g) return;
+      g.gain.setTargetAtTime(klemme(v, 0, 1) * 0.075, hof.currentTime, 0.20);
+    },
+
+    /** Man taucht in einen Kreis ein. */
+    hinein (id) {
+      if (!an) return;
+      const hz = TOENE[id] || 220;
+      schlagen(hz, 3.2, 'triangle', 0.11);
+      setTimeout(() => schlagen(hz * 2, 2.4, 'sine', 0.05), 180);
+      stimmen.forEach((g, k) => g.gain.setTargetAtTime(k === id ? 0.045 : 0, hof.currentTime, 0.5));
+    },
+
+    hinaus () {
+      if (!an || !aufgebaut) return;
+      stimmen.forEach(g => g.gain.setTargetAtTime(0, hof.currentTime, 0.5));
+      schlagen(110, 2.6, 'sine', 0.06);
+    },
+
+    /** Ein Fragment wird zum ersten Mal gefunden. */
+    gefunden () {
+      if (!an) return;
+      const skala = [440, 523.25, 587.33, 659.25, 783.99];
+      schlagen(skala[Math.floor(Math.random() * skala.length)], 1.4, 'sine', 0.035);
+    },
+
+    schlagen,
+
+    /** Falls der Browser den Ton erst nach einer Berührung erlaubt. */
+    wecken () { if (an && hof && hof.state === 'suspended') hof.resume(); }
+  };
 }
 
 
@@ -56005,29 +56497,11 @@ function pigmentAufbauen (leinwand, atem) {
 
 
 
-/* ── Klang: ein sehr leiser, gestrichener Ton ───────────────────── */
-let hof = null;
-function klangAn () {
-  if (hof) return hof;
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if (!AC) return null;
-  hof = new AC();
-  return hof;
-}
-function tonSpielen (hz, dauer = 1.6, art = 'triangle', lautstaerke = 0.055) {
-  if (document.documentElement.dataset.ton !== 'an') return;
-  const c = klangAn();
-  if (!c) return;
-  if (c.state === 'suspended') c.resume();
-  const o = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter();
-  o.type = art; o.frequency.value = hz;
-  f.type = 'lowpass'; f.frequency.value = 2600; f.Q.value = 0.7;
-  g.gain.setValueAtTime(0.0001, c.currentTime);
-  g.gain.exponentialRampToValueAtTime(lautstaerke, c.currentTime + 0.02);
-  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + dauer);
-  o.connect(f); f.connect(g); g.connect(c.destination);
-  o.start(); o.stop(c.currentTime + dauer + 0.05);
-}
+
+/* Der Klang wird von main.js hereingereicht. Fehlt er, bleibt alles stumm. */
+let stimme = null;
+const tonSpielen = (hz, dauer, art, staerke) =>
+  stimme && stimme.schlagen(hz, dauer, art, staerke);
 
 /* ══════════════════════════════════════════════════════════════════
    DIE SAITE — Klang
@@ -56039,8 +56513,7 @@ function saiteBauen (wurzel) {
   if (!pfad) return;
 
   const B = 1000, H = 220, M = H / 2;
-  /* Die vier Saiten der Violine */
-  const TOENE = [196.00, 293.66, 440.00, 659.25];   // g d a e'
+  const TOENE = SAITEN;                              // g d a e'
 
   let zupf = 0, ziel = 0, ort = 0.5, freq = 440, zeit = 0;
   let laeuft = false;
@@ -56079,15 +56552,21 @@ function saiteBauen (wurzel) {
     if (!laeuft) { laeuft = true; requestAnimationFrame(zeichne); }
   }
 
-  let letztes = null;
+  let letztes = null, letzterStrich = 0;
   halter.addEventListener('pointermove', e => {
     const b = halter.getBoundingClientRect();
     const x = (e.clientX - b.left) / b.width;
     const y = (e.clientY - b.top) / b.height;
     const nah = Math.abs(y - 0.5) < 0.20;
     if (nah && letztes !== null && Math.abs(x - letztes) > 0.012) {
-      anregen(Math.abs(x - letztes) * 320, x);
-      if (Math.random() < 0.09) tonSpielen(freq, 1.4, 'sawtooth', 0.03);
+      const kraft = Math.abs(x - letztes);
+      anregen(kraft * 320, x);
+      /* Ein Strich klingt durchgehend — nicht in zufälligen Stücken. */
+      const jetzt = performance.now();
+      if (jetzt - letzterStrich > 130) {
+        letzterStrich = jetzt;
+        tonSpielen(freq, 0.9, 'sawtooth', Math.min(0.02 + kraft * 0.5, 0.06));
+      }
     }
     letztes = nah ? x : null;
   });
@@ -56225,11 +56704,16 @@ function baguaBauen (wurzel) {
     }
 
     /* Trigramm unter der Figur hervorheben */
-    marken.forEach(m => {
+    marken.forEach((m, i) => {
       let dd = Math.abs(((winkel - m.winkel + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
       const nah = dd > Math.PI - 0.42;
-      if (nah) m.g.setAttribute('data-aktiv', '');
-      else m.g.removeAttribute('data-aktiv');
+      if (nah) {
+        if (!m.g.hasAttribute('data-aktiv')) {
+          m.g.setAttribute('data-aktiv', '');
+          /* Acht Richtungen, acht Töne. */
+          tonSpielen([220, 246.94, 261.63, 293.66, 329.63, 349.23, 392, 440][i], 1.6, 'sine', 0.05);
+        }
+      } else m.g.removeAttribute('data-aktiv');
     });
   }
   requestAnimationFrame(schleife);
@@ -56240,8 +56724,14 @@ function baguaBauen (wurzel) {
    ══════════════════════════════════════════════════════════════════ */
 function atemBauen (wurzel, atem) {
   const wort = $('.atem__wort', wurzel);
-  if (!wort) return;
-  const setze = p => { wort.textContent = p === 'ein' ? 'ein' : 'aus'; };
+  const feld = $('.atem', wurzel);
+  if (!wort || !feld) return;
+  const setze = p => {
+    wort.textContent = p === 'ein' ? 'ein' : 'aus';
+    feld.dataset.phase = p;
+    /* Ein sehr leiser Ton markiert den Wechsel — nur wenn Klang an ist. */
+    if (stimme) stimme.schlagen(p === 'ein' ? 261.63 : 196.00, 2.2, 'sine', 0.035);
+  };
   setze(atem.phase());
   atem.beiPhase(setze);
 }
@@ -56297,12 +56787,59 @@ function wurzelBauen (wurzel) {
   beobachter.observe(box, { attributes: true, attributeFilter: ['data-nah'] });
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   DIE ANFRAGE — die Felder liegen verstreut auf der Spirale.
+   Beim Absenden werden sie eingesammelt und zu einer E-Mail geknüpft.
+   (Das form="anfrage"-Attribut täte das auch, aber verlassen wollen
+   wir uns darauf nicht.)
+   ══════════════════════════════════════════════════════════════════ */
+function anfrageBauen (wurzel) {
+  const form = $('#anfrage', wurzel);
+  if (!form) return;
+  const raum = form.closest('.raum');
+  if (!raum) return;
+
+  const felder = () => $$('[form="anfrage"], #anfrage [name]', raum);
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const zeilen = [];
+    let name = '', mail = '';
+    for (const f of felder()) {
+      if (!f.name) continue;
+      if (f.type === 'radio' && !f.checked) continue;
+      if (f.type === 'submit') continue;
+      const wert = (f.value || '').trim();
+      if (!wert) continue;
+      if (f.name === 'Name')    name = wert;
+      if (f.name === 'E-Mail')  mail = wert;
+      zeilen.push(`${f.name}: ${wert}`);
+    }
+    if (!name || !mail) {
+      const fehlt = felder().find(f => (f.name === 'Name' && !name) || (f.name === 'E-Mail' && !mail));
+      if (fehlt) {
+        const box = fehlt.closest('.fragment');
+        const link = box && box.querySelector('label');
+        fehlt.focus();
+        if (link) link.style.color = 'var(--zinnober)';
+      }
+      return;
+    }
+    const betreff = encodeURIComponent(`Anfrage von ${name}`);
+    const koerper = encodeURIComponent(zeilen.join('\n') + '\n');
+    location.href = `mailto:info@gesundheitscoach-wien.at?subject=${betreff}&body=${koerper}`;
+    stimme && stimme.schlagen(329.63, 2.6, 'triangle', 0.09);
+  });
+}
+
 /* ══════════════════════════════════════════════════════════════════ */
-function artefakteAufbauen (atem) {
+function artefakteAufbauen (atem, klangModul) {
+  stimme = klangModul || null;
   saiteBauen(document);
   baguaBauen(document);
   atemBauen(document, atem);
   wurzelBauen(document);
+  anfrageBauen(document);
 }
 
 
@@ -56392,7 +56929,20 @@ function fragmenteSammeln (raum) {
     const k = kind.classList;
     if (k.contains('raum__kopf'))      { nimm(kind, 'kopf'); continue; }
     if (k.contains('artefakt'))        { nimm(kind, 'modul'); continue; }
-    if (k.contains('formular'))        { nimm(kind, 'formular'); continue; }
+    if (k.contains('formular')) {
+      /* Ein Formular am Stück wird höher als der Bildschirm. Also wandert
+         jede Frage als eigenes Fragment auf die Spirale — man beantwortet
+         sie eine nach der anderen, im Gehen.
+         Das leere <form> bleibt stehen: die Felder tragen form="anfrage"
+         und gehören ihm weiterhin an, auch von außerhalb. */
+      for (const e of [...kind.children]) {
+        nimm(e, e.classList.contains('formular__senden') ? 'senden'
+              : e.classList.contains('klein')            ? 'hinweis'
+              : 'frage');
+      }
+      kind.hidden = true;
+      continue;
+    }
     if (k.contains('kontakt'))         { nimm(kind, 'kontakt'); continue; }
     if (k.contains('raum__leib'))      { bündeln([...kind.children]); continue; }
     if (k.contains('raum__fuss'))      { for (const e of [...kind.children]) nimm(e); continue; }
@@ -56445,12 +56995,13 @@ function raumBauen (el, id) {
      <p class="kompass__text"><b data-zahl>0</b>&thinsp;/&thinsp;${frag.length} gefunden</p>`;
   el.append(kompass);
 
-  /* Geste */
+  /* Wie man sich bewegt — bleibt als leiser Hinweis stehen. */
   const geste = document.createElement('p');
   geste.className = 'geste';
-  geste.textContent = grobzeiger()
-    ? 'Zieh dich der Spirale entlang'
-    : 'Scrollen oder ziehen — der Weg windet sich nach außen';
+  geste.innerHTML = grobzeiger()
+    ? 'Zieh dich der Spirale entlang &middot; oben rechts zurück zu den Kreisen'
+    : '<b>←</b><b>→</b> Fragment für Fragment &middot; Scrollen oder Ziehen &middot; ' +
+      '<b>Esc</b> zurück zu den Kreisen';
   el.append(geste);
 
   return { el, id, tafel, frag, kompass, geste, spirale: null, laenge: 0 };
@@ -56464,7 +57015,9 @@ function anordnen (raum, spirale) {
   for (const f of frag) {
     const b = f.box.getBoundingClientRect();
     const gross = Math.max(b.width, b.height) || 320;
-    const abstand = (vorher + gross) * 0.62 + 130;
+    /* Reichlich Luft: zwei Fragmente dürfen sich nie berühren, auch die
+       breiten nicht. Lieber eine längere Reise als ein Gedränge. */
+    const abstand = (vorher + gross) * 0.70 + 175;
     s += vorher === 0 ? 0 : abstand;
     const p = spirale.bei(s);
     f.x = p.x; f.y = p.y; f.s = s;
@@ -56478,7 +57031,7 @@ function anordnen (raum, spirale) {
 
 /* ══════════════════════════════════════════════════════════════════ */
 function raeumeAufbauen (opt) {
-  const { pigment, aufWechsel } = opt;
+  const { pigment, klang, aufWechsel } = opt;
   const spirale = spiraleBauen();
 
   const raeume = new Map();
@@ -56496,10 +57049,16 @@ function raeumeAufbauen (opt) {
   /* ── Bewegung ─────────────────────────────────────────────────── */
   const schwung = { v: 0 };
 
+  /* Wann zuletzt jemand etwas getan hat — davon hängt das Einrasten ab. */
+  let letzteEingabe = 0;
+  let eingerastet = true;
+
   function reisen (ds) {
     if (!aktiv) return;
-    kam.sZiel = klemme(kam.sZiel + ds, 0, aktiv.laenge + 260);
+    kam.sZiel = klemme(kam.sZiel + ds, 0, aktiv.laenge);
     aktiv.el.dataset.bewegt = '1';
+    letzteEingabe = performance.now();
+    eingerastet = false;
   }
 
   function zuFragment (i) {
@@ -56509,6 +57068,19 @@ function raeumeAufbauen (opt) {
     kam.sZiel = f.s;
     schwung.v = 0;
     aktiv.el.dataset.bewegt = '1';
+    letzteEingabe = performance.now();
+    eingerastet = true;                 // gezieltes Springen rastet sofort
+  }
+
+  /* Kommt die Bewegung zur Ruhe, zieht es die Kamera auf das nächste
+     Fragment — man bleibt nie zwischen zwei Texten stehen. */
+  function einrasten () {
+    if (!aktiv || eingerastet || schwung.v !== 0) return;
+    if (performance.now() - letzteEingabe < 260) return;
+    const f = aktiv.frag[nahestes()];
+    if (!f) return;
+    kam.sZiel = f.s;
+    eingerastet = true;
   }
 
   function nahestes () {
@@ -56529,11 +57101,11 @@ function raeumeAufbauen (opt) {
     zuletzt = jetzt;
     if (!aktiv) return;
 
-    /* Schwung ausklingen lassen */
+    /* Schwung ausklingen lassen, dann einrasten */
     if (Math.abs(schwung.v) > 0.5) {
       reisen(schwung.v * dt);
       schwung.v *= Math.pow(0.02, dt);
-    } else schwung.v = 0;
+    } else { schwung.v = 0; einrasten(); }
 
     const vorS = kam.s;
     kam.s = zieh(kam.s, kam.sZiel, 6.5, dt);
@@ -56573,7 +57145,7 @@ function raeumeAufbauen (opt) {
         if (!f.gefunden) { f.gefunden = true; neu++; }
       } else if (f.box.hasAttribute('data-nah')) f.box.removeAttribute('data-nah');
     }
-    if (neu) kompassStellen();
+    if (neu) { kompassStellen(); klang && klang.gefunden(); }
   }
 
   function kompassStellen () {
@@ -56622,6 +57194,7 @@ function raeumeAufbauen (opt) {
       const ds = -(dx * p.tx + dy * p.ty) / Math.max(kam.kIst, .3);
       reisen(ds);
       vs = ds / 0.016;
+      eingerastet = false;
     });
     const los = e => {
       if (!zieht) return;
@@ -56640,12 +57213,11 @@ function raeumeAufbauen (opt) {
       if (e.target.closest('input, textarea')) return;
       const i = nahestes();
       switch (e.key) {
+        /* Nur die Pfeile führen. Die Leertaste bleibt der Leertaste. */
         case 'ArrowDown': case 'ArrowRight': case 'PageDown':
           e.preventDefault(); zuFragment(i + 1); break;
         case 'ArrowUp': case 'ArrowLeft': case 'PageUp':
           e.preventDefault(); zuFragment(i - 1); break;
-        case ' ':
-          e.preventDefault(); zuFragment(i + (e.shiftKey ? -1 : 1)); break;
         case 'Home': e.preventDefault(); zuFragment(0); break;
         case 'End':  e.preventDefault(); zuFragment(r.frag.length - 1); break;
       }
@@ -56661,6 +57233,32 @@ function raeumeAufbauen (opt) {
     });
   }
   raeume.forEach(bindeRaum);
+
+  /* ── Jede Frage bekommt ihren eigenen Weiter ──────────────────────
+     Auf der Spirale sieht man immer nur eine Frage. Ohne einen
+     sichtbaren nächsten Schritt weiß niemand, wie es weitergeht. */
+  raeume.forEach(r => {
+    r.frag.forEach((f, i) => {
+      if (f.art !== 'frage') return;
+      const letzte = !r.frag.slice(i + 1).some(x => x.art === 'frage');
+
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'weiter';
+      b.innerHTML = (letzte ? 'zum Absenden' : 'weiter') +
+        ' <span class="weiter__pfeil" aria-hidden="true">→</span>';
+      b.addEventListener('click', () => zuFragment(i + 1));
+      f.box.append(b);
+
+      /* Enter im Textfeld heißt dasselbe — und schickt nichts ab. */
+      f.box.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        if (e.target.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        zuFragment(i + 1);
+      });
+    });
+  });
 
   /* ── Öffnen / Schließen ───────────────────────────────────────── */
   function messen () {
@@ -56685,6 +57283,7 @@ function raeumeAufbauen (opt) {
     document.documentElement.dataset.modus = 'raum';
     document.documentElement.dataset.raum = r.id;
     if (pigment) pigment.hinein(r.el.dataset.kreis || 'bild');
+    if (klang) klang.hinein(r.el.dataset.kreis || 'bild');
     if (!laeuft) { laeuft = true; zuletzt = performance.now(); requestAnimationFrame(bild); }
     /* Fokus in den Raum legen, ohne zu springen */
     r.el.setAttribute('tabindex', '-1');
@@ -56699,6 +57298,7 @@ function raeumeAufbauen (opt) {
     document.documentElement.dataset.modus = 'feld';
     delete document.documentElement.dataset.raum;
     if (pigment) pigment.hinaus();
+    if (klang) klang.hinaus();
     aufWechsel && aufWechsel(null);
   }
 
@@ -56717,7 +57317,7 @@ function raeumeAufbauen (opt) {
    ══════════════════════════════════════════════════════════════════ */
 
 
-function feldAufbauen (pigment, aufOeffnen) {
+function feldAufbauen (pigment, aufOeffnen, klang) {
   const wurzel = document.documentElement;
   const glieder = $$('.feld__kreise a');
   const nachId = new Map();
@@ -56734,9 +57334,11 @@ function feldAufbauen (pigment, aufOeffnen) {
   const svg = $('#linien');
   const NS = 'http://www.w3.org/2000/svg';
   const gFern = $('#linien-fern'), gNah = $('#linien-nah');
+  /* Strichstärke folgt der Bildbreite — auf dem Telefon sonst Balken. */
+  const dickeFaktor = () => klemme(innerWidth / 1200, 0.42, 1.15);
   const linien = GERADEN.map(g => {
     const l = document.createElementNS(NS, 'line');
-    l.setAttribute('stroke-width', g.dicke);
+    l.setAttribute('stroke-width', (g.dicke * dickeFaktor()).toFixed(2));
     l.setAttribute('stroke-linecap', 'round');
     l.style.opacity = String(0.16 + (1 - g.tiefe) * 0.34);
     (g.tiefe > 0.5 ? gFern : gNah).append(l);
@@ -56745,7 +57347,9 @@ function feldAufbauen (pigment, aufOeffnen) {
 
   function linienStellen (px, py) {
     const B = innerWidth, H = innerHeight;
+    const f = dickeFaktor();
     for (const { el, daten } of linien) {
+      el.setAttribute('stroke-width', (daten.dicke * f).toFixed(2));
       const p = (1 - daten.tiefe) * 34;
       const ox = -px * p, oy = -py * p;
       el.setAttribute('x1', (daten.x1 * B + ox).toFixed(1));
@@ -56794,6 +57398,7 @@ function feldAufbauen (pigment, aufOeffnen) {
       if (eintrag.nah > beste) { beste = eintrag.nah; naechster = eintrag; }
 
       pigment && pigment.naehe(k.id, eintrag.nah);
+      klang && klang.naehe(k.id, eintrag.nah);
 
       const s = 1 + eintrag.nah * 0.13;
       const a = eintrag.a;
@@ -56859,6 +57464,7 @@ function feldAufbauen (pigment, aufOeffnen) {
 
 
 
+
 const wurzel = document.documentElement;
 
 /* ── Einstellungen: bleiben auf dem Gerät ───────────────────────── */
@@ -56892,9 +57498,14 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches || true) {
 }
 if (!pigment) wurzel.dataset.pigmentlos = 'an';
 
+/* ── Klang ──────────────────────────────────────────────────────── */
+const klang = klangAufbauen(atem);
+/* Browser erlauben Ton erst nach einer Berührung. */
+addEventListener('pointerdown', () => klang && klang.wecken(), { passive: true });
+
 /* ── Räume ──────────────────────────────────────────────────────── */
 const raeume = raeumeAufbauen({
-  pigment,
+  pigment, klang,
   aufWechsel (id) {
     const z = $('#zurueck');
     if (id) { z.hidden = false; }
@@ -56905,10 +57516,10 @@ const raeume = raeumeAufbauen({
 /* ── Feld ───────────────────────────────────────────────────────── */
 const feld = feldAufbauen(pigment, (zielId) => {
   geheZu(zielId, true);
-});
+}, klang);
 
 /* ── Artefakte ──────────────────────────────────────────────────── */
-artefakteAufbauen(atem);
+artefakteAufbauen(atem, klang);
 
 /* ══ Wege durch die Seite ═════════════════════════════════════════ */
 /* Bei file:// wirft pushState. Dann merken wir uns die Adresse eben nicht —
@@ -56971,6 +57582,13 @@ $$('#werkzeug [data-schalter]').forEach(b => {
     merke.schreib(k, an ? 'an' : 'aus');
   };
   stelle(einst[k] === 'an');
+  /* Ton wird beim Laden nie von selbst gestartet, auch wenn er gemerkt ist. */
+  if (k === 'ton' && einst.ton === 'an') {
+    addEventListener('pointerdown', function ersteBeruehrung () {
+      removeEventListener('pointerdown', ersteBeruehrung);
+      if (b.getAttribute('aria-pressed') === 'true' && klang) klang.einschalten();
+    }, { passive: true, once: true });
+  }
   b.addEventListener('click', () => {
     const an = b.getAttribute('aria-pressed') !== 'true';
     stelle(an);
@@ -56979,6 +57597,7 @@ $$('#werkzeug [data-schalter]').forEach(b => {
       else { pigment && pigment.weiter(); requestAnimationFrame(() => raeume.messen()); }
     }
     if (k === 'ruhe' && pigment) an ? pigment.anhalten() : pigment.weiter();
+    if (k === 'ton' && klang) an ? klang.einschalten() : klang.ausschalten();
   });
 });
 
@@ -56989,7 +57608,41 @@ document.addEventListener('visibilitychange', () => {
   else if (wurzel.dataset.ruhe !== 'an' && wurzel.dataset.schrift !== 'an') pigment.weiter();
 });
 
-/* ── Ein leiser Empfang ─────────────────────────────────────────── */
+/* ══ Empfang ══════════════════════════════════════════════════════
+   Einmal beim ersten Besuch: der Weg wird erklärt, und es wird
+   gefragt, ob die Seite klingen darf. Danach nie wieder.
+   ════════════════════════════════════════════════════════════════ */
+const empfang = $('#empfang');
+
+function empfangSchliessen (mitKlang) {
+  if (empfang.hidden || empfang.dataset.geht) return;
+  merke.schreib('empfangen', 'ja');
+  if (mitKlang) {
+    const b = $('#werkzeug [data-schalter="ton"]');
+    b.setAttribute('aria-pressed', 'true');
+    wurzel.dataset.ton = 'an';
+    merke.schreib('ton', 'an');
+    klang && klang.einschalten();       // der Klick ist die nötige Berührung
+  }
+  empfang.dataset.geht = 'ja';
+  setTimeout(() => { empfang.hidden = true; delete empfang.dataset.geht; }, 700);
+}
+
+if (merke.lies('empfangen', 'nein') !== 'ja') {
+  empfang.hidden = false;
+  requestAnimationFrame(() => $('#empfang [data-empfang="ton"]').focus({ preventScroll: true }));
+  $$('#empfang [data-empfang]').forEach(b => {
+    b.addEventListener('click', () => empfangSchliessen(b.dataset.empfang === 'ton'));
+  });
+  /* Wer daneben klickt oder Esc drückt, hat sich für die Stille entschieden. */
+  empfang.addEventListener('click', e => {
+    if (e.target === empfang) empfangSchliessen(false);
+  });
+  addEventListener('keydown', e => {
+    if (!empfang.hidden && e.key === 'Escape') { e.stopPropagation(); empfangSchliessen(false); }
+  }, true);
+}
+
 requestAnimationFrame(() => wurzel.dataset.bereit = 'ja');
 
 

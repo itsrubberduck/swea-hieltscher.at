@@ -214,7 +214,7 @@ for (const g of GERADEN) {
   const op = 0.16 + (1-g.tiefe)*0.34;
   for (let i = 0; i <= n; i++) {
     const t = i/n, cx = mi(x1,x2,t), cy = mi(y1,y2,t);
-    const rad = g.dicke/2;
+    const rad = g.dicke * Math.min(Math.max(B/1200, 0.42), 1.15) / 2;
     for (let dy = -Math.ceil(rad); dy <= Math.ceil(rad); dy++)
       for (let dx = -Math.ceil(rad); dx <= Math.ceil(rad); dx++) {
         const X = Math.round(cx+dx), Y = Math.round(cy+dy);

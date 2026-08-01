@@ -304,15 +304,32 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
   bottom: var(--rand);
   transform: translateX(-50%);
   z-index: 5;
+  max-width: min(46rem, 92vw);
   font-size: .68rem;
-  letter-spacing: .22em;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--tusche-fern);
   pointer-events: none;
   text-align: center;
-  transition: opacity .6s var(--kurve);
+  line-height: 1.9;
+  transition: opacity .8s var(--kurve);
 }
-.raum[data-bewegt] .geste { opacity: 0; }
+.geste b {
+  font-weight: 400;
+  color: var(--tusche);
+  padding: .18em .45em .22em;
+  margin-inline-end: .1em;
+  border: 1px solid color-mix(in srgb, var(--tusche) 28%, transparent);
+  border-radius: .4em;
+  letter-spacing: .06em;
+}
+/* Verblasst, sobald man sich bewegt — verschwindet aber nie ganz. */
+.raum[data-bewegt] .geste { opacity: .32; }
+.raum[data-bewegt] .geste:hover { opacity: 1; }
+
+@media (max-width: 46rem) {
+  .geste { font-size: .6rem; letter-spacing: .1em; bottom: calc(var(--rand) + 2.4rem); }
+}
 
 /* ══════════════════════════════════════════════════════════════════
    DIE ARTEFAKTE — je Raum ein Ding, das man anfassen kann
@@ -348,11 +365,26 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 .bagua__spur path { fill: none; stroke: var(--zinnober); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: .45; }
 .bagua__figur path { fill: none; stroke: var(--tusche); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ATEM — die Scheibe */
-.atem { display: grid; place-items: center; gap: 1.2rem; }
-.atem__scheibe {
+/* ATEM — die Scheibe.
+   Der Weg von klein nach groß muss so weit sein, dass der Körper
+   ihm folgen will. Ein zaghaftes Pulsieren atmet niemand mit. */
+.atem {
+  display: grid;
+  place-items: center;
+  gap: 1.4rem;
+  /* Platz für die volle Ausdehnung — sonst schneidet das Fragment ab. */
+  padding: min(20vmin, 9rem) 0;
+}
+.atem__buehne {
+  position: relative;
   width: min(34vmin, 17rem);
   aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+.atem__scheibe {
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 50%, var(--safran) 0 22%, transparent 22.5%),
@@ -360,20 +392,38 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
     radial-gradient(circle at 50% 50%, transparent 0 48%, var(--karmin) 48% 70%, transparent 70.5%),
     radial-gradient(circle at 50% 50%, transparent 0 74%, var(--tuerkis) 74% 100%);
   filter: url(#aquarell);
+  transform-origin: 50% 50%;
   animation: atem-zyklus 10s cubic-bezier(.37,0,.63,1) infinite;
 }
+/* Ein mitlaufender Ring zeigt, wohin der Atem geht. */
+.atem__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--tuerkis) 45%, transparent);
+  transform: scale(1.62);
+  pointer-events: none;
+}
 @keyframes atem-zyklus {
-  0%   { transform: scale(.6);  opacity: .55; }
-  40%  { transform: scale(1);   opacity: 1;   }
-  100% { transform: scale(.6);  opacity: .55; }
+  0%   { transform: scale(.34); opacity: .48; }   /* ganz ausgeatmet */
+  40%  { transform: scale(1.6); opacity: 1;   }   /* 4 s ein         */
+  100% { transform: scale(.34); opacity: .48; }   /* 6 s aus         */
 }
 .atem__wort {
+  position: relative;
+  z-index: 2;
   font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(1.3rem, 3.4vw, 2.1rem);
-  letter-spacing: .22em;
-  color: var(--tuerkis);
-  margin: 0; min-height: 1.3em;
+  font-size: clamp(1.6rem, 4.4vw, 2.6rem);
+  letter-spacing: .26em;
+  color: var(--tusche);
+  margin: 0;
+  min-height: 1.3em;
+  paint-order: stroke fill;
+  -webkit-text-stroke: .3em var(--papier-hell);
+  transition: color .8s var(--kurve-weich);
 }
+.atem[data-phase='ein'] .atem__wort { color: var(--zinnober); }
+.atem[data-phase='aus'] .atem__wort { color: var(--tuerkis); }
 
 /* WURZEL — der wachsende Strang */
 .wurzelwerk svg { width: 100%; height: clamp(180px, 30vh, 320px); overflow: visible; }
@@ -392,11 +442,39 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 .aura span:nth-child(5) { inset: 48%; border-color: color-mix(in srgb, var(--tuerkis) 60%, transparent); animation-delay: -2.8s; }
 @keyframes aura-puls { 0%,100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.06); opacity: 1; } }
 
-/* BEGEGNUNG — das Formular liegt im Schnitt zweier Kreise */
-.fragment[data-art='formular'] { width: min(30rem, 84vw); }
+/* BEGEGNUNG — jede Frage ein eigenes Fragment.
+   Kein Formular am Stück: man beantwortet eine Frage nach der anderen. */
+.fragment[data-art='frage']  { width: min(26rem, 80vw); }
+.fragment[data-art='senden'] { width: max-content; }
+
+/* Der nächste Schritt — sichtbar bei jeder Frage. */
+.weiter {
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  margin-top: 1.5rem;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.1rem;
+  letter-spacing: -.01em;
+  color: var(--tusche-weich);
+  padding-bottom: .16em;
+  border-bottom: 1.5px solid color-mix(in srgb, var(--zinnober) 45%, transparent);
+  transition: color var(--schnell), border-color var(--schnell);
+}
+.weiter:hover { color: var(--zinnober); border-bottom-color: var(--zinnober); }
+.weiter__pfeil {
+  display: inline-block;
+  transition: transform var(--mittel) var(--kurve);
+}
+.weiter:hover .weiter__pfeil { transform: translateX(.35em); }
 .formular { display: grid; gap: 1.4rem; position: relative; }
-.formular__zeile { display: grid; gap: .3rem; margin: 0; }
-.formular label { font-family: 'Fraunces', Georgia, serif; font-size: 1.05rem; color: var(--tusche-weich); }
+.formular__zeile { display: grid; gap: .55rem; margin: 0; }
+.formular label {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.15rem, 1rem + .6vw, 1.6rem);
+  line-height: 1.2;
+  color: var(--tusche);
+}
 .formular input[type='text'],
 .formular input[type='email'],
 .formular textarea {
@@ -411,8 +489,9 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 }
 .formular__wahl { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .45rem .6rem; }
 .formular__wahl legend {
-  font-family: 'Fraunces', Georgia, serif; font-size: 1.05rem;
-  color: var(--tusche-weich); padding: 0 0 .6rem; float: left; width: 100%;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.15rem, 1rem + .6vw, 1.6rem);
+  color: var(--tusche); padding: 0 0 .8rem; float: left; width: 100%;
 }
 .formular__wahl input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .formular__wahl label {

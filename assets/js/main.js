@@ -9,6 +9,7 @@ import { atemUhr } from './atem.js';
 import { feldAufbauen } from './feld.js';
 import { raeumeAufbauen } from './raum.js';
 import { artefakteAufbauen } from './artefakte.js';
+import { klangAufbauen } from './klang.js';
 
 const wurzel = document.documentElement;
 
@@ -44,9 +45,14 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches || true) {
 }
 if (!pigment) wurzel.dataset.pigmentlos = 'an';
 
+/* ── Klang ──────────────────────────────────────────────────────── */
+const klang = klangAufbauen(atem);
+/* Browser erlauben Ton erst nach einer Berührung. */
+addEventListener('pointerdown', () => klang && klang.wecken(), { passive: true });
+
 /* ── Räume ──────────────────────────────────────────────────────── */
 const raeume = raeumeAufbauen({
-  pigment,
+  pigment, klang,
   aufWechsel (id) {
     const z = $('#zurueck');
     if (id) { z.hidden = false; }
@@ -57,10 +63,10 @@ const raeume = raeumeAufbauen({
 /* ── Feld ───────────────────────────────────────────────────────── */
 const feld = feldAufbauen(pigment, (zielId) => {
   geheZu(zielId, true);
-});
+}, klang);
 
 /* ── Artefakte ──────────────────────────────────────────────────── */
-artefakteAufbauen(atem);
+artefakteAufbauen(atem, klang);
 
 /* ══ Wege durch die Seite ═════════════════════════════════════════ */
 /* Bei file:// wirft pushState. Dann merken wir uns die Adresse eben nicht —
@@ -123,6 +129,13 @@ $$('#werkzeug [data-schalter]').forEach(b => {
     merke.schreib(k, an ? 'an' : 'aus');
   };
   stelle(einst[k] === 'an');
+  /* Ton wird beim Laden nie von selbst gestartet, auch wenn er gemerkt ist. */
+  if (k === 'ton' && einst.ton === 'an') {
+    addEventListener('pointerdown', function ersteBeruehrung () {
+      removeEventListener('pointerdown', ersteBeruehrung);
+      if (b.getAttribute('aria-pressed') === 'true' && klang) klang.einschalten();
+    }, { passive: true, once: true });
+  }
   b.addEventListener('click', () => {
     const an = b.getAttribute('aria-pressed') !== 'true';
     stelle(an);
@@ -131,6 +144,7 @@ $$('#werkzeug [data-schalter]').forEach(b => {
       else { pigment && pigment.weiter(); requestAnimationFrame(() => raeume.messen()); }
     }
     if (k === 'ruhe' && pigment) an ? pigment.anhalten() : pigment.weiter();
+    if (k === 'ton' && klang) an ? klang.einschalten() : klang.ausschalten();
   });
 });
 
@@ -141,5 +155,39 @@ document.addEventListener('visibilitychange', () => {
   else if (wurzel.dataset.ruhe !== 'an' && wurzel.dataset.schrift !== 'an') pigment.weiter();
 });
 
-/* ── Ein leiser Empfang ─────────────────────────────────────────── */
+/* ══ Empfang ══════════════════════════════════════════════════════
+   Einmal beim ersten Besuch: der Weg wird erklärt, und es wird
+   gefragt, ob die Seite klingen darf. Danach nie wieder.
+   ════════════════════════════════════════════════════════════════ */
+const empfang = $('#empfang');
+
+function empfangSchliessen (mitKlang) {
+  if (empfang.hidden || empfang.dataset.geht) return;
+  merke.schreib('empfangen', 'ja');
+  if (mitKlang) {
+    const b = $('#werkzeug [data-schalter="ton"]');
+    b.setAttribute('aria-pressed', 'true');
+    wurzel.dataset.ton = 'an';
+    merke.schreib('ton', 'an');
+    klang && klang.einschalten();       // der Klick ist die nötige Berührung
+  }
+  empfang.dataset.geht = 'ja';
+  setTimeout(() => { empfang.hidden = true; delete empfang.dataset.geht; }, 700);
+}
+
+if (merke.lies('empfangen', 'nein') !== 'ja') {
+  empfang.hidden = false;
+  requestAnimationFrame(() => $('#empfang [data-empfang="ton"]').focus({ preventScroll: true }));
+  $$('#empfang [data-empfang]').forEach(b => {
+    b.addEventListener('click', () => empfangSchliessen(b.dataset.empfang === 'ton'));
+  });
+  /* Wer daneben klickt oder Esc drückt, hat sich für die Stille entschieden. */
+  empfang.addEventListener('click', e => {
+    if (e.target === empfang) empfangSchliessen(false);
+  });
+  addEventListener('keydown', e => {
+    if (!empfang.hidden && e.key === 'Escape') { e.stopPropagation(); empfangSchliessen(false); }
+  }, true);
+}
+
 requestAnimationFrame(() => wurzel.dataset.bereit = 'ja');

@@ -104,30 +104,76 @@
   </nav>
 
   <p class="feld__hinweis" data-hinweis>
-    <span class="nur-zeiger">Nähere dich einem Kreis.</span>
-    <span class="nur-finger">Berühre einen Kreis.</span>
+    <span class="nur-zeiger">Nähere dich einem Kreis &middot; oder <b>Tab</b> und <b>&crarr;</b></span>
+    <span class="nur-finger">Berühre einen Kreis</span>
   </p>
 </header>
+
+<!-- ══════════════════════════════════════════════════════════════
+     EMPFANG — einmal beim ersten Besuch. Erklärt den Weg und fragt
+     nach dem Klang. Danach nie wieder.
+     ══════════════════════════════════════════════════════════════ -->
+<div id="empfang" hidden>
+  <div class="empfang__blatt" role="dialog" aria-modal="true" aria-labelledby="empfang-titel">
+    <p class="empfang__oben">Bevor du beginnst</p>
+    <h2 id="empfang-titel">Diese Seite hat kein Menü.</h2>
+
+    <ol class="empfang__weg">
+      <li>
+        <span class="empfang__zeichen" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+        </span>
+        Nähere dich einem gemalten Kreis. Sein Wort öffnet sich — klick hinein.
+      </li>
+      <li>
+        <span class="empfang__zeichen"><b>←</b><b>→</b></span>
+        Drinnen windet sich der Inhalt nach außen. Die Pfeiltasten führen dich
+        von einem Fragment zum nächsten.
+      </li>
+      <li>
+        <span class="empfang__zeichen"><b>Esc</b></span>
+        bringt dich jederzeit zurück zu den Kreisen.
+      </li>
+    </ol>
+
+    <p class="empfang__frage">
+      Darf die Seite leise klingen?<br>
+      <em>Jeder Kreis hat einen eigenen Ton — er kommt, wenn du nahe bist.</em>
+    </p>
+    <p class="empfang__wahl">
+      <button type="button" data-empfang="ton">Ja, mit Klang</button>
+      <button type="button" data-empfang="still">Lieber still</button>
+    </p>
+    <p class="empfang__nachsatz">Beides lässt sich unten rechts jederzeit ändern.</p>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════════
      WERKZEUG — dezent, unten. Keine Buttons: Striche mit Wörtern.
      ══════════════════════════════════════════════════════════════ -->
 <div id="werkzeug">
   <button type="button" data-schalter="schrift" aria-pressed="false">
-    <span class="werkzeug__strich" aria-hidden="true"></span>Textansicht
+    <span class="werkzeug__strich" aria-hidden="true"></span>
+    <span class="werkzeug__wort">Lesen</span>
+    <span class="werkzeug__satz">Alles als ruhiges Dokument,<br>ohne Farbe und Bewegung</span>
   </button>
   <button type="button" data-schalter="ton" aria-pressed="false">
-    <span class="werkzeug__strich" aria-hidden="true"></span>Ton
+    <span class="werkzeug__strich" aria-hidden="true"></span>
+    <span class="werkzeug__wort">Klang</span>
+    <span class="werkzeug__satz">Jeder Kreis hat einen Ton.<br>Er kommt, wenn du nahe bist</span>
   </button>
   <button type="button" data-schalter="ruhe" aria-pressed="false">
-    <span class="werkzeug__strich" aria-hidden="true"></span>Ruhe
+    <span class="werkzeug__strich" aria-hidden="true"></span>
+    <span class="werkzeug__wort">Ruhe</span>
+    <span class="werkzeug__satz">Hält jede Bewegung an.<br>Die Farbe bleibt stehen</span>
   </button>
 </div>
 
 <!-- Zurück ins Feld -->
-<button type="button" id="zurueck" hidden>
+<button type="button" id="zurueck" hidden title="Zurück zu den Kreisen — oder einfach Esc drücken">
   <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15"/><circle cx="20" cy="20" r="8"/><circle cx="20" cy="20" r="2.5"/></svg>
-  <span>ins Feld</span>
+  <span class="zurueck__wort">zurück zu den Kreisen</span>
+  <span class="zurueck__taste" aria-hidden="true">Esc</span>
 </button>
 
 <!-- ══════════════════════════════════════════════════════════════
@@ -274,11 +320,14 @@
   </div>
 
   <div class="artefakt">
-    <div class="atem">
-      <div class="atem__scheibe" aria-hidden="true"></div>
-      <p class="atem__wort" aria-hidden="true">ein</p>
+    <div class="atem" data-phase="ein">
+      <div class="atem__buehne">
+        <div class="atem__ring" aria-hidden="true"></div>
+        <div class="atem__scheibe" aria-hidden="true"></div>
+        <p class="atem__wort" aria-hidden="true">ein</p>
+      </div>
     </div>
-    <p class="artefakt__wort">Atme mit. Vier Sekunden ein, sechs aus.</p>
+    <p class="artefakt__wort">Atme mit. Die Farbe geht mit dir auf und zu —<br>vier Sekunden ein, sechs Sekunden aus.</p>
   </div>
 
   <div class="raum__leib">
@@ -420,35 +469,35 @@
     <p class="raum__lead">Zwei Kreise, die sich überschneiden.<br><em>Dazwischen entsteht der Raum.</em></p>
   </div>
 
-  <form class="formular" data-formular action="mailto:info@gesundheitscoach-wien.at" method="post" enctype="text/plain">
+  <form class="formular" id="anfrage" data-formular action="mailto:info@gesundheitscoach-wien.at" method="post" enctype="text/plain">
     <p class="formular__zeile">
       <label for="f-name">Wie heißt du?</label>
-      <input id="f-name" name="Name" type="text" autocomplete="name" required>
+      <input id="f-name" form="anfrage" name="Name" type="text" autocomplete="name" required>
     </p>
     <p class="formular__zeile">
       <label for="f-mail">Wo erreiche ich dich?</label>
-      <input id="f-mail" name="E-Mail" type="email" autocomplete="email" required>
+      <input id="f-mail" form="anfrage" name="E-Mail" type="email" autocomplete="email" required>
     </p>
     <fieldset class="formular__wahl">
       <legend>Worum geht es?</legend>
-      <span><input type="radio" id="w1" name="Anliegen" value="Gesundheitscoaching"><label for="w1">Gesundheitscoaching</label></span>
-      <span><input type="radio" id="w2" name="Anliegen" value="Aurachirurgie"><label for="w2">Aurachirurgie</label></span>
-      <span><input type="radio" id="w3" name="Anliegen" value="Qigong"><label for="w3">Qigong</label></span>
-      <span><input type="radio" id="w4" name="Anliegen" value="Bagua Zhang"><label for="w4">Bagua Zhang</label></span>
-      <span><input type="radio" id="w5" name="Anliegen" value="Musiker:innengesundheit"><label for="w5">Musiker:innengesundheit</label></span>
-      <span><input type="radio" id="w6" name="Anliegen" value="Kunst"><label for="w6">Kunst</label></span>
+      <span><input type="radio" id="w1" form="anfrage" name="Anliegen" value="Gesundheitscoaching"><label for="w1">Gesundheitscoaching</label></span>
+      <span><input type="radio" id="w2" form="anfrage" name="Anliegen" value="Aurachirurgie"><label for="w2">Aurachirurgie</label></span>
+      <span><input type="radio" id="w3" form="anfrage" name="Anliegen" value="Qigong"><label for="w3">Qigong</label></span>
+      <span><input type="radio" id="w4" form="anfrage" name="Anliegen" value="Bagua Zhang"><label for="w4">Bagua Zhang</label></span>
+      <span><input type="radio" id="w5" form="anfrage" name="Anliegen" value="Musiker:innengesundheit"><label for="w5">Musiker:innengesundheit</label></span>
+      <span><input type="radio" id="w6" form="anfrage" name="Anliegen" value="Kunst"><label for="w6">Kunst</label></span>
     </fieldset>
     <fieldset class="formular__wahl formular__wahl--eng">
       <legend>Wie?</legend>
-      <span><input type="radio" id="o1" name="Format" value="Präsenz in Wien"><label for="o1">Präsenz in Wien</label></span>
-      <span><input type="radio" id="o2" name="Format" value="Online"><label for="o2">Online</label></span>
+      <span><input type="radio" id="o1" form="anfrage" name="Format" value="Präsenz in Wien"><label for="o1">Präsenz in Wien</label></span>
+      <span><input type="radio" id="o2" form="anfrage" name="Format" value="Online"><label for="o2">Online</label></span>
     </fieldset>
     <p class="formular__zeile">
       <label for="f-text">Was möchtest du mir sagen?</label>
-      <textarea id="f-text" name="Nachricht" rows="4"></textarea>
+      <textarea id="f-text" form="anfrage" name="Nachricht" rows="4"></textarea>
     </p>
     <p class="formular__senden">
-      <button type="submit"><span>Absenden</span></button>
+      <button type="submit" form="anfrage"><span>Absenden</span></button>
     </p>
     <p class="klein formular__notiz">Öffnet dein E-Mail-Programm. Lieber direkt? <a href="mailto:info@gesundheitscoach-wien.at">info@gesundheitscoach-wien.at</a></p>
   </form>

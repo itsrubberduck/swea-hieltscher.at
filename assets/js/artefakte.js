@@ -5,31 +5,13 @@
 
 import { $, $$, klemme, misch } from './util.js';
 import { TRIGRAMME } from './inhalt.js';
+import { SAITEN } from './klang.js';
 import { figurZeichnen, spurZeichnen } from './roto.js';
 
-/* ── Klang: ein sehr leiser, gestrichener Ton ───────────────────── */
-let hof = null;
-function klangAn () {
-  if (hof) return hof;
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if (!AC) return null;
-  hof = new AC();
-  return hof;
-}
-export function tonSpielen (hz, dauer = 1.6, art = 'triangle', lautstaerke = 0.055) {
-  if (document.documentElement.dataset.ton !== 'an') return;
-  const c = klangAn();
-  if (!c) return;
-  if (c.state === 'suspended') c.resume();
-  const o = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter();
-  o.type = art; o.frequency.value = hz;
-  f.type = 'lowpass'; f.frequency.value = 2600; f.Q.value = 0.7;
-  g.gain.setValueAtTime(0.0001, c.currentTime);
-  g.gain.exponentialRampToValueAtTime(lautstaerke, c.currentTime + 0.02);
-  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + dauer);
-  o.connect(f); f.connect(g); g.connect(c.destination);
-  o.start(); o.stop(c.currentTime + dauer + 0.05);
-}
+/* Der Klang wird von main.js hereingereicht. Fehlt er, bleibt alles stumm. */
+let stimme = null;
+const tonSpielen = (hz, dauer, art, staerke) =>
+  stimme && stimme.schlagen(hz, dauer, art, staerke);
 
 /* ══════════════════════════════════════════════════════════════════
    DIE SAITE — Klang
@@ -41,8 +23,7 @@ function saiteBauen (wurzel) {
   if (!pfad) return;
 
   const B = 1000, H = 220, M = H / 2;
-  /* Die vier Saiten der Violine */
-  const TOENE = [196.00, 293.66, 440.00, 659.25];   // g d a e'
+  const TOENE = SAITEN;                              // g d a e'
 
   let zupf = 0, ziel = 0, ort = 0.5, freq = 440, zeit = 0;
   let laeuft = false;
@@ -81,15 +62,21 @@ function saiteBauen (wurzel) {
     if (!laeuft) { laeuft = true; requestAnimationFrame(zeichne); }
   }
 
-  let letztes = null;
+  let letztes = null, letzterStrich = 0;
   halter.addEventListener('pointermove', e => {
     const b = halter.getBoundingClientRect();
     const x = (e.clientX - b.left) / b.width;
     const y = (e.clientY - b.top) / b.height;
     const nah = Math.abs(y - 0.5) < 0.20;
     if (nah && letztes !== null && Math.abs(x - letztes) > 0.012) {
-      anregen(Math.abs(x - letztes) * 320, x);
-      if (Math.random() < 0.09) tonSpielen(freq, 1.4, 'sawtooth', 0.03);
+      const kraft = Math.abs(x - letztes);
+      anregen(kraft * 320, x);
+      /* Ein Strich klingt durchgehend — nicht in zufälligen Stücken. */
+      const jetzt = performance.now();
+      if (jetzt - letzterStrich > 130) {
+        letzterStrich = jetzt;
+        tonSpielen(freq, 0.9, 'sawtooth', Math.min(0.02 + kraft * 0.5, 0.06));
+      }
     }
     letztes = nah ? x : null;
   });
@@ -227,11 +214,16 @@ function baguaBauen (wurzel) {
     }
 
     /* Trigramm unter der Figur hervorheben */
-    marken.forEach(m => {
+    marken.forEach((m, i) => {
       let dd = Math.abs(((winkel - m.winkel + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
       const nah = dd > Math.PI - 0.42;
-      if (nah) m.g.setAttribute('data-aktiv', '');
-      else m.g.removeAttribute('data-aktiv');
+      if (nah) {
+        if (!m.g.hasAttribute('data-aktiv')) {
+          m.g.setAttribute('data-aktiv', '');
+          /* Acht Richtungen, acht Töne. */
+          tonSpielen([220, 246.94, 261.63, 293.66, 329.63, 349.23, 392, 440][i], 1.6, 'sine', 0.05);
+        }
+      } else m.g.removeAttribute('data-aktiv');
     });
   }
   requestAnimationFrame(schleife);
@@ -242,8 +234,14 @@ function baguaBauen (wurzel) {
    ══════════════════════════════════════════════════════════════════ */
 function atemBauen (wurzel, atem) {
   const wort = $('.atem__wort', wurzel);
-  if (!wort) return;
-  const setze = p => { wort.textContent = p === 'ein' ? 'ein' : 'aus'; };
+  const feld = $('.atem', wurzel);
+  if (!wort || !feld) return;
+  const setze = p => {
+    wort.textContent = p === 'ein' ? 'ein' : 'aus';
+    feld.dataset.phase = p;
+    /* Ein sehr leiser Ton markiert den Wechsel — nur wenn Klang an ist. */
+    if (stimme) stimme.schlagen(p === 'ein' ? 261.63 : 196.00, 2.2, 'sine', 0.035);
+  };
   setze(atem.phase());
   atem.beiPhase(setze);
 }
@@ -299,10 +297,57 @@ function wurzelBauen (wurzel) {
   beobachter.observe(box, { attributes: true, attributeFilter: ['data-nah'] });
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   DIE ANFRAGE — die Felder liegen verstreut auf der Spirale.
+   Beim Absenden werden sie eingesammelt und zu einer E-Mail geknüpft.
+   (Das form="anfrage"-Attribut täte das auch, aber verlassen wollen
+   wir uns darauf nicht.)
+   ══════════════════════════════════════════════════════════════════ */
+function anfrageBauen (wurzel) {
+  const form = $('#anfrage', wurzel);
+  if (!form) return;
+  const raum = form.closest('.raum');
+  if (!raum) return;
+
+  const felder = () => $$('[form="anfrage"], #anfrage [name]', raum);
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const zeilen = [];
+    let name = '', mail = '';
+    for (const f of felder()) {
+      if (!f.name) continue;
+      if (f.type === 'radio' && !f.checked) continue;
+      if (f.type === 'submit') continue;
+      const wert = (f.value || '').trim();
+      if (!wert) continue;
+      if (f.name === 'Name')    name = wert;
+      if (f.name === 'E-Mail')  mail = wert;
+      zeilen.push(`${f.name}: ${wert}`);
+    }
+    if (!name || !mail) {
+      const fehlt = felder().find(f => (f.name === 'Name' && !name) || (f.name === 'E-Mail' && !mail));
+      if (fehlt) {
+        const box = fehlt.closest('.fragment');
+        const link = box && box.querySelector('label');
+        fehlt.focus();
+        if (link) link.style.color = 'var(--zinnober)';
+      }
+      return;
+    }
+    const betreff = encodeURIComponent(`Anfrage von ${name}`);
+    const koerper = encodeURIComponent(zeilen.join('\n') + '\n');
+    location.href = `mailto:info@gesundheitscoach-wien.at?subject=${betreff}&body=${koerper}`;
+    stimme && stimme.schlagen(329.63, 2.6, 'triangle', 0.09);
+  });
+}
+
 /* ══════════════════════════════════════════════════════════════════ */
-export function artefakteAufbauen (atem) {
+export function artefakteAufbauen (atem, klangModul) {
+  stimme = klangModul || null;
   saiteBauen(document);
   baguaBauen(document);
   atemBauen(document, atem);
   wurzelBauen(document);
+  anfrageBauen(document);
 }

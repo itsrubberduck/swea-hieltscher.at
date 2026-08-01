@@ -85,7 +85,20 @@ function fragmenteSammeln (raum) {
     const k = kind.classList;
     if (k.contains('raum__kopf'))      { nimm(kind, 'kopf'); continue; }
     if (k.contains('artefakt'))        { nimm(kind, 'modul'); continue; }
-    if (k.contains('formular'))        { nimm(kind, 'formular'); continue; }
+    if (k.contains('formular')) {
+      /* Ein Formular am Stück wird höher als der Bildschirm. Also wandert
+         jede Frage als eigenes Fragment auf die Spirale — man beantwortet
+         sie eine nach der anderen, im Gehen.
+         Das leere <form> bleibt stehen: die Felder tragen form="anfrage"
+         und gehören ihm weiterhin an, auch von außerhalb. */
+      for (const e of [...kind.children]) {
+        nimm(e, e.classList.contains('formular__senden') ? 'senden'
+              : e.classList.contains('klein')            ? 'hinweis'
+              : 'frage');
+      }
+      kind.hidden = true;
+      continue;
+    }
     if (k.contains('kontakt'))         { nimm(kind, 'kontakt'); continue; }
     if (k.contains('raum__leib'))      { bündeln([...kind.children]); continue; }
     if (k.contains('raum__fuss'))      { for (const e of [...kind.children]) nimm(e); continue; }
@@ -138,12 +151,13 @@ function raumBauen (el, id) {
      <p class="kompass__text"><b data-zahl>0</b>&thinsp;/&thinsp;${frag.length} gefunden</p>`;
   el.append(kompass);
 
-  /* Geste */
+  /* Wie man sich bewegt — bleibt als leiser Hinweis stehen. */
   const geste = document.createElement('p');
   geste.className = 'geste';
-  geste.textContent = grobzeiger()
-    ? 'Zieh dich der Spirale entlang'
-    : 'Scrollen oder ziehen — der Weg windet sich nach außen';
+  geste.innerHTML = grobzeiger()
+    ? 'Zieh dich der Spirale entlang &middot; oben rechts zurück zu den Kreisen'
+    : '<b>←</b><b>→</b> Fragment für Fragment &middot; Scrollen oder Ziehen &middot; ' +
+      '<b>Esc</b> zurück zu den Kreisen';
   el.append(geste);
 
   return { el, id, tafel, frag, kompass, geste, spirale: null, laenge: 0 };
@@ -157,7 +171,9 @@ function anordnen (raum, spirale) {
   for (const f of frag) {
     const b = f.box.getBoundingClientRect();
     const gross = Math.max(b.width, b.height) || 320;
-    const abstand = (vorher + gross) * 0.62 + 130;
+    /* Reichlich Luft: zwei Fragmente dürfen sich nie berühren, auch die
+       breiten nicht. Lieber eine längere Reise als ein Gedränge. */
+    const abstand = (vorher + gross) * 0.70 + 175;
     s += vorher === 0 ? 0 : abstand;
     const p = spirale.bei(s);
     f.x = p.x; f.y = p.y; f.s = s;
@@ -171,7 +187,7 @@ function anordnen (raum, spirale) {
 
 /* ══════════════════════════════════════════════════════════════════ */
 export function raeumeAufbauen (opt) {
-  const { pigment, aufWechsel } = opt;
+  const { pigment, klang, aufWechsel } = opt;
   const spirale = spiraleBauen();
 
   const raeume = new Map();
@@ -189,10 +205,16 @@ export function raeumeAufbauen (opt) {
   /* ── Bewegung ─────────────────────────────────────────────────── */
   const schwung = { v: 0 };
 
+  /* Wann zuletzt jemand etwas getan hat — davon hängt das Einrasten ab. */
+  let letzteEingabe = 0;
+  let eingerastet = true;
+
   function reisen (ds) {
     if (!aktiv) return;
-    kam.sZiel = klemme(kam.sZiel + ds, 0, aktiv.laenge + 260);
+    kam.sZiel = klemme(kam.sZiel + ds, 0, aktiv.laenge);
     aktiv.el.dataset.bewegt = '1';
+    letzteEingabe = performance.now();
+    eingerastet = false;
   }
 
   function zuFragment (i) {
@@ -202,6 +224,19 @@ export function raeumeAufbauen (opt) {
     kam.sZiel = f.s;
     schwung.v = 0;
     aktiv.el.dataset.bewegt = '1';
+    letzteEingabe = performance.now();
+    eingerastet = true;                 // gezieltes Springen rastet sofort
+  }
+
+  /* Kommt die Bewegung zur Ruhe, zieht es die Kamera auf das nächste
+     Fragment — man bleibt nie zwischen zwei Texten stehen. */
+  function einrasten () {
+    if (!aktiv || eingerastet || schwung.v !== 0) return;
+    if (performance.now() - letzteEingabe < 260) return;
+    const f = aktiv.frag[nahestes()];
+    if (!f) return;
+    kam.sZiel = f.s;
+    eingerastet = true;
   }
 
   function nahestes () {
@@ -222,11 +257,11 @@ export function raeumeAufbauen (opt) {
     zuletzt = jetzt;
     if (!aktiv) return;
 
-    /* Schwung ausklingen lassen */
+    /* Schwung ausklingen lassen, dann einrasten */
     if (Math.abs(schwung.v) > 0.5) {
       reisen(schwung.v * dt);
       schwung.v *= Math.pow(0.02, dt);
-    } else schwung.v = 0;
+    } else { schwung.v = 0; einrasten(); }
 
     const vorS = kam.s;
     kam.s = zieh(kam.s, kam.sZiel, 6.5, dt);
@@ -266,7 +301,7 @@ export function raeumeAufbauen (opt) {
         if (!f.gefunden) { f.gefunden = true; neu++; }
       } else if (f.box.hasAttribute('data-nah')) f.box.removeAttribute('data-nah');
     }
-    if (neu) kompassStellen();
+    if (neu) { kompassStellen(); klang && klang.gefunden(); }
   }
 
   function kompassStellen () {
@@ -315,6 +350,7 @@ export function raeumeAufbauen (opt) {
       const ds = -(dx * p.tx + dy * p.ty) / Math.max(kam.kIst, .3);
       reisen(ds);
       vs = ds / 0.016;
+      eingerastet = false;
     });
     const los = e => {
       if (!zieht) return;
@@ -333,12 +369,11 @@ export function raeumeAufbauen (opt) {
       if (e.target.closest('input, textarea')) return;
       const i = nahestes();
       switch (e.key) {
+        /* Nur die Pfeile führen. Die Leertaste bleibt der Leertaste. */
         case 'ArrowDown': case 'ArrowRight': case 'PageDown':
           e.preventDefault(); zuFragment(i + 1); break;
         case 'ArrowUp': case 'ArrowLeft': case 'PageUp':
           e.preventDefault(); zuFragment(i - 1); break;
-        case ' ':
-          e.preventDefault(); zuFragment(i + (e.shiftKey ? -1 : 1)); break;
         case 'Home': e.preventDefault(); zuFragment(0); break;
         case 'End':  e.preventDefault(); zuFragment(r.frag.length - 1); break;
       }
@@ -354,6 +389,32 @@ export function raeumeAufbauen (opt) {
     });
   }
   raeume.forEach(bindeRaum);
+
+  /* ── Jede Frage bekommt ihren eigenen Weiter ──────────────────────
+     Auf der Spirale sieht man immer nur eine Frage. Ohne einen
+     sichtbaren nächsten Schritt weiß niemand, wie es weitergeht. */
+  raeume.forEach(r => {
+    r.frag.forEach((f, i) => {
+      if (f.art !== 'frage') return;
+      const letzte = !r.frag.slice(i + 1).some(x => x.art === 'frage');
+
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'weiter';
+      b.innerHTML = (letzte ? 'zum Absenden' : 'weiter') +
+        ' <span class="weiter__pfeil" aria-hidden="true">→</span>';
+      b.addEventListener('click', () => zuFragment(i + 1));
+      f.box.append(b);
+
+      /* Enter im Textfeld heißt dasselbe — und schickt nichts ab. */
+      f.box.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        if (e.target.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        zuFragment(i + 1);
+      });
+    });
+  });
 
   /* ── Öffnen / Schließen ───────────────────────────────────────── */
   function messen () {
@@ -378,6 +439,7 @@ export function raeumeAufbauen (opt) {
     document.documentElement.dataset.modus = 'raum';
     document.documentElement.dataset.raum = r.id;
     if (pigment) pigment.hinein(r.el.dataset.kreis || 'bild');
+    if (klang) klang.hinein(r.el.dataset.kreis || 'bild');
     if (!laeuft) { laeuft = true; zuletzt = performance.now(); requestAnimationFrame(bild); }
     /* Fokus in den Raum legen, ohne zu springen */
     r.el.setAttribute('tabindex', '-1');
@@ -392,6 +454,7 @@ export function raeumeAufbauen (opt) {
     document.documentElement.dataset.modus = 'feld';
     delete document.documentElement.dataset.raum;
     if (pigment) pigment.hinaus();
+    if (klang) klang.hinaus();
     aufWechsel && aufWechsel(null);
   }
 

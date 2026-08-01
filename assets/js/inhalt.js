@@ -15,7 +15,7 @@ const P = {
 };
 
 /** Der Anteil der halben Sichthöhe, den ein Kreis mit r = 1 einnimmt. */
-export const MASS = { weit: 0.30, hoch: 0.30 };
+export const MASS = { weit: 0.30, hoch: 0.24 };
 
 /** Acht Kreise. Reihenfolge = Reihenfolge im HTML. */
 export const KREISE = [
@@ -24,56 +24,56 @@ export const KREISE = [
     farben: [P.karmin, P.safran, P.tuerkis, P.zinnober, P.sand, P.rost, P.ocker, P.magenta],
     ringe: 8, saat: 11, luecke: 0, lueckeWo: 0,
     weit: { x: -0.34, y:  0.02, z: -0.5, r: 1.30 },
-    hoch: { x: -0.10, y:  0.42, z: -0.4, r: 0.85 }
+    hoch: { x: -0.10, y:  0.24, z: -0.4, r: 1.15 }
   },
   {
     id: 'klang', ziel: 'raum-klang',
     farben: [P.kobalt, P.tuerkisH, P.sand, P.tiefblau, P.kobalt, P.ocker],
     ringe: 6, saat: 23, luecke: 0.55, lueckeWo: -0.9,
     weit: { x:  0.80, y:  0.52, z: -1.4, r: 0.95 },
-    hoch: { x:  0.28, y:  0.12, z: -1.2, r: 0.62 }
+    hoch: { x:  0.30, y: -0.10, z: -1.2, r: 0.78 }
   },
   {
     id: 'kreis', ziel: 'raum-kreis',
     farben: [P.tusche, P.rost, P.ocker, P.tusche, P.sand],
     ringe: 5, saat: 37, luecke: 0, lueckeWo: 0,
     weit: { x:  1.34, y: -0.16, z:  0.3, r: 0.72 },
-    hoch: { x: -0.26, y: -0.14, z:  0.2, r: 0.55 }
+    hoch: { x: -0.30, y: -0.36, z:  0.2, r: 0.72 }
   },
   {
     id: 'atem', ziel: 'raum-atem',
     farben: [P.tuerkis, P.safran, P.tuerkisH, P.sand],
     ringe: 4, saat: 53, luecke: 0.4, lueckeWo: 2.3,
     weit: { x: -1.20, y: -0.62, z:  0.7, r: 0.58 },
-    hoch: { x:  0.24, y: -0.40, z:  0.5, r: 0.46 }
+    hoch: { x:  0.26, y: -0.56, z:  0.5, r: 0.58 }
   },
   {
     id: 'wurzel', ziel: 'raum-wurzel',
     farben: [P.tiefgruen, P.ocker, P.oliv, P.sand, P.oliv],
     ringe: 5, saat: 71, luecke: 0, lueckeWo: 0,
     weit: { x:  0.20, y: -0.80, z: -0.7, r: 0.80 },
-    hoch: { x: -0.20, y: -0.62, z: -0.6, r: 0.52 }
+    hoch: { x:  0.30, y:  0.56, z: -0.9, r: 0.60 }
   },
   {
     id: 'feldraum', ziel: 'raum-feld',
     farben: [P.magenta, P.karmin, P.safran, P.altrosa, P.kobalt, P.magenta, P.sand],
     ringe: 7, saat: 89, luecke: 0, lueckeWo: 0,
     weit: { x:  1.44, y:  0.92, z: -2.2, r: 0.62 },
-    hoch: { x:  0.30, y:  0.62, z: -1.8, r: 0.44 }
+    hoch: { x: -0.31, y:  0.62, z: -1.8, r: 0.50 }
   },
   {
     id: 'weg', ziel: 'raum-weg',
     farben: [P.ocker, P.rost, P.sand],
     ringe: 3, saat: 103, luecke: 0.7, lueckeWo: 1.2,
     weit: { x: -0.14, y:  0.74, z: -2.6, r: 0.50 },
-    hoch: { x: -0.32, y:  0.70, z: -2.4, r: 0.36 }
+    hoch: { x:  0.03, y:  0.80, z: -2.4, r: 0.38 }
   },
   {
     id: 'begegnung', ziel: 'raum-begegnung',
     farben: [P.zinnober, P.tuerkisH, P.magenta, P.sand],
     ringe: 4, saat: 127, luecke: 0, lueckeWo: 0,
     weit: { x:  0.62, y: -0.34, z:  1.0, r: 0.46 },
-    hoch: { x:  0.06, y: -0.86, z:  0.8, r: 0.38 }
+    hoch: { x: -0.26, y: -0.72, z:  0.8, r: 0.46 }
   }
 ];
 

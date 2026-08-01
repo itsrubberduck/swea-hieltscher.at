@@ -186,7 +186,7 @@ try {
   /* Kein Inhalt darf beim Umbau verloren gehen */
   const saeubern = (wurzelEl) => {
     const k = wurzelEl.cloneNode(true);
-    k.querySelectorAll('.kompass, .geste, svg').forEach(n => n.remove());   // von JS ergänzt
+    k.querySelectorAll('.kompass, .geste, .weiter, svg').forEach(n => n.remove());   // von JS ergänzt
     /* Leerraum ignorieren: getrennte Fragmente haben keine Trennzeichen mehr. */
     return k.textContent.replace(/\s+/g, '');
   };
@@ -220,6 +220,60 @@ try {
   await new Promise(r => setTimeout(r, 60));
   if (el.dataset.schrift !== 'an') nein('Textansicht schaltet nicht'); else ja('Textansicht schaltet');
   schalter.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+
+  /* Die Schalter müssen sagen, was sie tun */
+  const knoepfe = [...doc.querySelectorAll('#werkzeug [data-schalter]')];
+  const ohneSatz = knoepfe.filter(b => !b.querySelector('.werkzeug__satz'));
+  if (ohneSatz.length) nein(`${ohneSatz.length} Schalter ohne Erklärung`);
+  else ja(`${knoepfe.length} Schalter mit Erklärung`);
+
+  /* Klang schaltet */
+  const tonKnopf = doc.querySelector('[data-schalter="ton"]');
+  tonKnopf.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 60));
+  if (el.dataset.ton !== 'an') nein('Klang schaltet nicht'); else ja('Klang schaltet');
+  tonKnopf.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  if (el.dataset.ton) nein('Klang lässt sich nicht wieder abschalten'); else ja('Klang schaltet wieder ab');
+
+  /* Der Rückweg muss beschriftet sein, die Bewegung erklärt */
+  const zurWort = doc.querySelector('#zurueck .zurueck__wort');
+  if (!zurWort || !zurWort.textContent.trim()) nein('Rückweg ohne Beschriftung');
+  else ja('Rückweg beschriftet: „' + zurWort.textContent.trim() + '"');
+  const gesten = [...doc.querySelectorAll('.geste')].map(g => g.textContent);
+  const fehlt = ['←', '→', 'Esc'].filter(t => !gesten.every(g => g.includes(t)));
+  if (fehlt.length) nein('Bewegungshinweis nennt nicht: ' + fehlt.join(', '));
+  else ja('Bewegungshinweis nennt Pfeile und Esc');
+
+  /* Jede Frage im Kontaktformular braucht einen nächsten Schritt */
+  const fragen = [...doc.querySelectorAll('.fragment[data-art="frage"]')];
+  const ohneWeiter = fragen.filter(f => !f.querySelector('.weiter'));
+  if (!fragen.length) nein('keine einzelnen Fragen gefunden');
+  else if (ohneWeiter.length) nein(`${ohneWeiter.length} von ${fragen.length} Fragen ohne Weiter`);
+  else ja(`${fragen.length} Fragen, jede mit eigenem Weiter`);
+  const letzter = fragen.at(-1).querySelector('.weiter').textContent.trim();
+  if (!/Absenden/.test(letzter)) nein('letzte Frage führt nicht zum Absenden: „' + letzter + '"');
+  else ja('letzte Frage führt zum Absenden');
+
+  /* Empfang beim ersten Besuch */
+  const emp = doc.getElementById('empfang');
+  if (!emp) nein('kein Empfang vorhanden');
+  else if (emp.hidden) nein('Empfang erscheint beim ersten Besuch nicht');
+  else {
+    ja('Empfang erscheint beim ersten Besuch');
+    const wahl = [...emp.querySelectorAll('[data-empfang]')].map(b => b.dataset.empfang).sort();
+    if (wahl.join(',') !== 'still,ton') nein('Empfang fragt nicht nach Klang');
+    else ja('Empfang fragt nach Klang: ' + wahl.join(' / '));
+    emp.querySelector('[data-empfang="still"]').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 800));
+    if (!emp.hidden) nein('Empfang schließt nicht'); else ja('Empfang schließt');
+  }
+
+  /* Leertaste darf nicht mehr navigieren */
+  const rk = doc.getElementById('raum-klang');
+  const vorher = doc.documentElement.dataset.raum;
+  if (/Leertaste/i.test([...doc.querySelectorAll('.geste')].map(g => g.textContent).join(''))) {
+    nein('Leertaste wird noch als Übergang genannt');
+  } else ja('Leertaste wird nicht mehr als Übergang genannt');
 
   /* Tastatur */
   const raum = doc.getElementById('raum-klang');

@@ -31,6 +31,7 @@ const REIHE = [
   'assets/js/inhalt.js',
   'assets/js/atem.js',
   'assets/js/roto.js',
+  'assets/js/klang.js',
   'assets/js/pigment.js',
   'assets/js/artefakte.js',
   'assets/js/raum.js',
@@ -55,6 +56,26 @@ function dreiEinbetten () {
   return module.exports;
 })();
 const THREE = T;\n`;
+}
+
+/* Im Bündel liegen alle Module in EINEM Geltungsbereich. Zwei Module
+   dürfen darum nie denselben Namen auf oberster Ebene vergeben. */
+function obersteNamen (quelle) {
+  const namen = new Set();
+  for (const m of quelle.matchAll(/^(?:export\s+)?(?:const|let|var|function|class)\s+([A-Za-z_$][\w$]*)/gm))
+    namen.add(m[1]);
+  return namen;
+}
+const belegt = new Map([['T', 'three.js'], ['THREE', 'three.js']]);
+for (const f of REIHE) {
+  for (const n of obersteNamen(lies(f))) {
+    if (belegt.has(n)) {
+      console.error(`✗ Namenskollision: „${n}" steht in ${belegt.get(n)} UND in ${f}.`);
+      console.error('  Im Bündel teilen sich alle Module einen Geltungsbereich — bitte umbenennen.');
+      process.exit(1);
+    }
+    belegt.set(n, f);
+  }
 }
 
 let js = '';

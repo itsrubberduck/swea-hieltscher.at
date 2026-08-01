@@ -80,3 +80,4 @@ node bild.mjs 1200 750     # rendert das Feld als PNG, ohne Browser
 - [ ] Formular: derzeit `mailto:`. Für ein echtes Absenden braucht es
       einen kleinen Server-Endpunkt.
 - [ ] Foto von Swea
+# swea-hieltscher.at

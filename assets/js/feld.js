@@ -7,7 +7,7 @@
 import { $, $$, klemme, misch, zieh, grobzeiger } from './util.js';
 import { GERADEN } from './inhalt.js';
 
-export function feldAufbauen (pigment, aufOeffnen) {
+export function feldAufbauen (pigment, aufOeffnen, klang) {
   const wurzel = document.documentElement;
   const glieder = $$('.feld__kreise a');
   const nachId = new Map();
@@ -24,9 +24,11 @@ export function feldAufbauen (pigment, aufOeffnen) {
   const svg = $('#linien');
   const NS = 'http://www.w3.org/2000/svg';
   const gFern = $('#linien-fern'), gNah = $('#linien-nah');
+  /* Strichstärke folgt der Bildbreite — auf dem Telefon sonst Balken. */
+  const dickeFaktor = () => klemme(innerWidth / 1200, 0.42, 1.15);
   const linien = GERADEN.map(g => {
     const l = document.createElementNS(NS, 'line');
-    l.setAttribute('stroke-width', g.dicke);
+    l.setAttribute('stroke-width', (g.dicke * dickeFaktor()).toFixed(2));
     l.setAttribute('stroke-linecap', 'round');
     l.style.opacity = String(0.16 + (1 - g.tiefe) * 0.34);
     (g.tiefe > 0.5 ? gFern : gNah).append(l);
@@ -35,7 +37,9 @@ export function feldAufbauen (pigment, aufOeffnen) {
 
   function linienStellen (px, py) {
     const B = innerWidth, H = innerHeight;
+    const f = dickeFaktor();
     for (const { el, daten } of linien) {
+      el.setAttribute('stroke-width', (daten.dicke * f).toFixed(2));
       const p = (1 - daten.tiefe) * 34;
       const ox = -px * p, oy = -py * p;
       el.setAttribute('x1', (daten.x1 * B + ox).toFixed(1));
@@ -84,6 +88,7 @@ export function feldAufbauen (pigment, aufOeffnen) {
       if (eintrag.nah > beste) { beste = eintrag.nah; naechster = eintrag; }
 
       pigment && pigment.naehe(k.id, eintrag.nah);
+      klang && klang.naehe(k.id, eintrag.nah);
 
       const s = 1 + eintrag.nah * 0.13;
       const a = eintrag.a;
