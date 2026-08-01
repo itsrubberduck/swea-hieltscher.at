@@ -1596,6 +1596,42 @@ html:not([data-js='an']) .atem { display: none; }
    Dieselben Inhalte, dieselbe DOM — nur anders gezeigt.
    ══════════════════════════════════════════════════════════════════ */
 
+/* ── Das Band: der Ausgang aus der Textansicht ──────────────────────
+   Ohne einen sichtbaren Weg zurück bleibt man hier hängen und hält
+   die schlichte Fassung für die ganze Seite. ── */
+#textansicht-band {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .8rem 2rem;
+  padding: .85rem var(--rand);
+  background: var(--tusche);
+  color: var(--papier-hell);
+  font-size: .9rem;
+}
+#textansicht-band[hidden] { display: none; }
+#textansicht-band p { margin: 0; }
+#textansicht-band b { font-weight: 400; color: var(--safran); }
+#textansicht-band button {
+  position: relative;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--papier-hell);
+  padding-bottom: .12em;
+  border-bottom: 1.5px solid var(--zinnober);
+  transition: color var(--schnell), border-color var(--schnell);
+  white-space: nowrap;
+}
+#textansicht-band button:hover { color: var(--safran); border-color: var(--safran); }
+#textansicht-band button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--tusche), 0 0 0 4px var(--safran);
+}
+
 html[data-schrift='an'] #pigment,
 html[data-schrift='an'] #linien,
 html[data-schrift='an'] #zurueck,
@@ -1734,6 +1770,12 @@ html[data-schrift='an'] #werkzeug {
 <body>
 
 <a class="ueberspringen" href="#dokument">Direkt zum Text</a>
+
+<!-- Wer in der Textansicht landet, muss auch wieder herausfinden. -->
+<div id="textansicht-band" hidden>
+  <p>Du liest gerade die <b>Textansicht</b> — ohne Farbe, ohne Bewegung.</p>
+  <button type="button" data-zurueck-zum-feld>Zurück zu den Kreisen</button>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════════
      PAPIER — der Grund. Liegt unter allem.
@@ -57858,6 +57900,7 @@ $$('#werkzeug [data-schalter]').forEach(b => {
   /* Beim bloßen Besuch nichts schreiben. Erst eine bewusste Auswahl
      wird als lokale Einstellung auf diesem Gerät gemerkt. */
   stelle(einst[k] === 'an', false);
+  if (k === 'schrift') $('#textansicht-band').hidden = einst.schrift !== 'an';
   /* Ton wird beim Laden nie von selbst gestartet, auch wenn er gemerkt ist. */
   if (k === 'ton' && einst.ton === 'an') {
     addEventListener('pointerdown', function ersteBeruehrung () {
@@ -57869,12 +57912,19 @@ $$('#werkzeug [data-schalter]').forEach(b => {
     const an = b.getAttribute('aria-pressed') !== 'true';
     stelle(an);
     if (k === 'schrift') {
+      $('#textansicht-band').hidden = !an;
       if (an) { raeume.schliessen(); pigment && pigment.anhalten(); }
       else { pigment && pigment.weiter(); requestAnimationFrame(() => raeume.messen()); }
     }
     if (k === 'ruhe' && pigment) an ? pigment.anhalten() : pigment.weiter();
     if (k === 'ton' && klang) an ? klang.einschalten() : klang.ausschalten();
   });
+});
+
+/* Der Ausgang aus der Textansicht — dieselbe Wirkung wie der Schalter. */
+$('[data-zurueck-zum-feld]').addEventListener('click', () => {
+  $('#werkzeug [data-schalter="schrift"]').click();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 /* ── Nichts läuft im Hintergrund weiter ─────────────────────────── */

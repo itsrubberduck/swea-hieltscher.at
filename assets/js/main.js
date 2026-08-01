@@ -180,6 +180,7 @@ $$('#werkzeug [data-schalter]').forEach(b => {
   /* Beim bloßen Besuch nichts schreiben. Erst eine bewusste Auswahl
      wird als lokale Einstellung auf diesem Gerät gemerkt. */
   stelle(einst[k] === 'an', false);
+  if (k === 'schrift') $('#textansicht-band').hidden = einst.schrift !== 'an';
   /* Ton wird beim Laden nie von selbst gestartet, auch wenn er gemerkt ist. */
   if (k === 'ton' && einst.ton === 'an') {
     addEventListener('pointerdown', function ersteBeruehrung () {
@@ -191,12 +192,19 @@ $$('#werkzeug [data-schalter]').forEach(b => {
     const an = b.getAttribute('aria-pressed') !== 'true';
     stelle(an);
     if (k === 'schrift') {
+      $('#textansicht-band').hidden = !an;
       if (an) { raeume.schliessen(); pigment && pigment.anhalten(); }
       else { pigment && pigment.weiter(); requestAnimationFrame(() => raeume.messen()); }
     }
     if (k === 'ruhe' && pigment) an ? pigment.anhalten() : pigment.weiter();
     if (k === 'ton' && klang) an ? klang.einschalten() : klang.ausschalten();
   });
+});
+
+/* Der Ausgang aus der Textansicht — dieselbe Wirkung wie der Schalter. */
+$('[data-zurueck-zum-feld]').addEventListener('click', () => {
+  $('#werkzeug [data-schalter="schrift"]').click();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 /* ── Nichts läuft im Hintergrund weiter ─────────────────────────── */

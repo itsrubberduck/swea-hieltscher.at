@@ -4,6 +4,42 @@
    Dieselben Inhalte, dieselbe DOM — nur anders gezeigt.
    ══════════════════════════════════════════════════════════════════ */
 
+/* ── Das Band: der Ausgang aus der Textansicht ──────────────────────
+   Ohne einen sichtbaren Weg zurück bleibt man hier hängen und hält
+   die schlichte Fassung für die ganze Seite. ── */
+#textansicht-band {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .8rem 2rem;
+  padding: .85rem var(--rand);
+  background: var(--tusche);
+  color: var(--papier-hell);
+  font-size: .9rem;
+}
+#textansicht-band[hidden] { display: none; }
+#textansicht-band p { margin: 0; }
+#textansicht-band b { font-weight: 400; color: var(--safran); }
+#textansicht-band button {
+  position: relative;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--papier-hell);
+  padding-bottom: .12em;
+  border-bottom: 1.5px solid var(--zinnober);
+  transition: color var(--schnell), border-color var(--schnell);
+  white-space: nowrap;
+}
+#textansicht-band button:hover { color: var(--safran); border-color: var(--safran); }
+#textansicht-band button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--tusche), 0 0 0 4px var(--safran);
+}
+
 html[data-schrift='an'] #pigment,
 html[data-schrift='an'] #linien,
 html[data-schrift='an'] #zurueck,

@@ -292,6 +292,22 @@ try {
   if (!/Absenden/.test(letzter)) nein('letzte Frage führt nicht zum Absenden: „' + letzter + '"');
   else ja('letzte Frage führt zum Absenden');
 
+  /* Aus der Textansicht muss ein sichtbarer Weg zurückführen */
+  const band = doc.getElementById('textansicht-band');
+  const schalterSchrift = doc.querySelector('[data-schalter="schrift"]');
+  schalterSchrift.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 60));
+  if (el.dataset.schrift !== 'an') nein('Textansicht ließ sich nicht einschalten');
+  else if (!band || band.hidden) nein('in der Textansicht fehlt der sichtbare Weg zurück');
+  else {
+    ja('Textansicht zeigt den Weg zurück: „' + band.querySelector('button').textContent.trim() + '"');
+    band.querySelector('button').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 60));
+    if (el.dataset.schrift) nein('der Weg zurück verlässt die Textansicht nicht');
+    else if (!band.hidden) nein('das Band bleibt stehen');
+    else ja('der Weg zurück führt heraus');
+  }
+
   /* Empfang beim ersten Besuch */
   const emp = doc.getElementById('empfang');
   if (!emp) nein('kein Empfang vorhanden');
