@@ -139,7 +139,7 @@ html[data-js='an'] .feld__name {
   color: var(--tusche-weich);
   margin: 0 0 2.6rem;
 }
-.feld__satz em { color: var(--tuerkis); }
+.feld__satz em { color: var(--violett); }
 
 html[data-js='an'] .feld__satz {
   position: absolute;
@@ -567,7 +567,7 @@ html[data-modus='raum'] #werkzeug { opacity: .45; }
   margin: .6rem 0 0;
   color: var(--tusche);
 }
-.empfang__frage em { color: var(--tuerkis); font-size: .78em; }
+.empfang__frage em { color: var(--violett); font-size: .78em; }
 
 .empfang__wahl { display: flex; flex-wrap: wrap; gap: 1.8rem; margin: .2rem 0 0; }
 .empfang__wahl button {

@@ -45,28 +45,29 @@
 
 /* ── Pigmente ───────────────────────────────────────────────────── */
 :root {
-  /* Papier */
-  --papier:        #efe5d1;
-  --papier-tief:   #e4d6bc;
-  --papier-hell:   #f8f2e4;
+  /* Papier — Aquarellbütten, rosig durchscheinend */
+  --papier:        #fdf3f0;
+  --papier-tief:   #f7e0e0;
+  --papier-hell:   #fffbf8;
 
-  /* Tusche */
-  --tusche:        #15120e;
-  --tusche-weich:  #3b342b;
-  --tusche-fern:   #6d6355;
+  /* Tusche — kein Schwarz, ein tiefes Pflaumendunkel */
+  --tusche:        #2d1220;
+  --tusche-weich:  #5b2f42;
+  --tusche-fern:   #8f606e;
 
-  /* Ihre Farben — aus den Bildern gelesen */
-  --zinnober:      #e0521c;
-  --safran:        #f0a81c;
-  --karmin:        #c31d55;
-  --magenta:       #d4359a;
-  --tuerkis:       #10635f;
-  --tuerkis-hell:  #2e948c;
-  --kobalt:        #1e3f8f;
-  --oliv:          #55701f;
-  --ocker:         #c58a2a;
-  --creme:         #f6edd8;
-  --rost:          #a33512;
+  /* Ihre Farben — aus den Bildern gelesen: Glut in der Mitte,
+     nach außen über Karmin und Magenta ins Violett */
+  --zinnober:      #f2551b;
+  --safran:        #fa9a16;
+  --karmin:        #e11447;
+  --magenta:       #d21c93;
+  --violett:       #7c31ad;
+  --violett-hell:  #a655cf;
+  --pflaume:       #5a2585;
+  --himbeer:       #d81a6e;
+  --gold:          #fdb92a;
+  --creme:         #fdeae0;
+  --rost:          #c8380f;
 
   /* Rhythmus */
   --atem:          5.5s;      /* ein voller Atemzug */
@@ -142,9 +143,9 @@ input, textarea, select { font: inherit; color: inherit; }
   position: absolute;
   inset: -10%;
   background:
-    radial-gradient(58% 46% at 22% 18%, #f8f1df 0%, transparent 62%),
-    radial-gradient(52% 60% at 82% 74%, #ecdec2 0%, transparent 66%),
-    radial-gradient(70% 55% at 50% 108%, #e2d2b4 0%, transparent 70%),
+    radial-gradient(58% 46% at 22% 18%, #fff6ec 0%, transparent 62%),
+    radial-gradient(52% 60% at 82% 74%, #fbdfe6 0%, transparent 66%),
+    radial-gradient(70% 55% at 50% 108%, #f6cfd9 0%, transparent 70%),
     var(--papier);
 }
 
@@ -152,7 +153,7 @@ input, textarea, select { font: inherit; color: inherit; }
 .papier__faser {
   position: absolute;
   inset: 0;
-  opacity: .5;
+  opacity: .34;
   mix-blend-mode: multiply;
   background-image:
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='300' height='300' filter='url(%23f)' opacity='0.42'/></svg>"),
@@ -165,7 +166,7 @@ input, textarea, select { font: inherit; color: inherit; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(120% 95% at 38% 30%, transparent 40%, rgba(70,52,28,.09) 78%, rgba(50,36,18,.17) 100%);
+    radial-gradient(120% 95% at 38% 30%, transparent 40%, rgba(140,30,80,.07) 78%, rgba(90,20,70,.14) 100%);
 }
 
 /* ── Schrift ────────────────────────────────────────────────────── */
@@ -247,7 +248,7 @@ a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .22em
   html[data-cursor-aktiv='ja'] .kreiszeiger {
     width: 2.7rem;
     height: 2.7rem;
-    border-color: var(--tuerkis);
+    border-color: var(--violett);
     background: color-mix(in srgb, var(--safran) 18%, transparent);
   }
   html[data-cursor-aktiv='ja'] .kreiszeiger::after { transform: scale(.55); }

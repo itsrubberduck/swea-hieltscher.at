@@ -194,15 +194,15 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 
 .werk[data-palette='glut'] .werk__flaeche {
   background:
-    radial-gradient(circle at 50% 46%, var(--zinnober) 0 13%, transparent 13.6%),
+    radial-gradient(circle at 50% 46%, var(--gold) 0 13%, transparent 13.6%),
     radial-gradient(circle at 48% 47%, transparent 0 15%, var(--safran) 15% 21%, transparent 21.7%),
-    radial-gradient(circle at 51% 45%, transparent 0 23%, var(--karmin) 23% 28%, transparent 28.8%),
-    radial-gradient(circle at 49% 48%, transparent 0 30%, var(--tuerkis) 30% 37%, transparent 37.6%),
-    radial-gradient(circle at 52% 46%, transparent 0 39%, var(--creme) 39% 45%, transparent 45.5%),
-    radial-gradient(circle at 48% 45%, transparent 0 47%, var(--oliv) 47% 55%, transparent 55.6%),
-    radial-gradient(circle at 50% 47%, transparent 0 57%, var(--kobalt) 57% 67%, transparent 67.5%),
-    radial-gradient(circle at 50% 46%, transparent 0 69%, var(--rost) 69% 82%, transparent 82.5%),
-    var(--safran);
+    radial-gradient(circle at 51% 45%, transparent 0 23%, var(--zinnober) 23% 28%, transparent 28.8%),
+    radial-gradient(circle at 49% 48%, transparent 0 30%, var(--karmin) 30% 37%, transparent 37.6%),
+    radial-gradient(circle at 52% 46%, transparent 0 39%, var(--himbeer) 39% 45%, transparent 45.5%),
+    radial-gradient(circle at 48% 45%, transparent 0 47%, var(--magenta) 47% 55%, transparent 55.6%),
+    radial-gradient(circle at 50% 47%, transparent 0 57%, var(--violett) 57% 67%, transparent 67.5%),
+    radial-gradient(circle at 50% 46%, transparent 0 69%, var(--pflaume) 69% 82%, transparent 82.5%),
+    var(--papier-tief);
 }
 .werk[data-palette='aquarell'] .werk__flaeche {
   background:
@@ -216,23 +216,23 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 .werk[data-palette='kandinsky'] .werk__flaeche {
   background:
     radial-gradient(circle at 38% 34%, var(--karmin) 0 9%, transparent 9.4%),
-    radial-gradient(circle at 62% 42%, color-mix(in srgb, var(--oliv) 88%, transparent) 0 13%, transparent 13.4%),
+    radial-gradient(circle at 62% 42%, color-mix(in srgb, var(--himbeer) 88%, transparent) 0 13%, transparent 13.4%),
     radial-gradient(circle at 47% 58%, color-mix(in srgb, var(--rost) 82%, transparent) 0 17%, transparent 17.4%),
     radial-gradient(circle at 72% 68%, var(--safran) 0 7%, transparent 7.4%),
-    radial-gradient(circle at 27% 66%, var(--kobalt) 0 5%, transparent 5.4%),
+    radial-gradient(circle at 27% 66%, var(--pflaume) 0 5%, transparent 5.4%),
     linear-gradient(58deg, transparent 40%, var(--safran) 40% 47%, transparent 47%),
-    linear-gradient(-32deg, transparent 44%, var(--kobalt) 44% 50%, transparent 50%),
+    linear-gradient(-32deg, transparent 44%, var(--pflaume) 44% 50%, transparent 50%),
     radial-gradient(circle at 50% 50%, transparent 0 43%, var(--tusche) 43% 46%, transparent 46.4%),
     var(--papier-hell);
 }
 .werk[data-palette='erde'] .werk__flaeche {
   aspect-ratio: 1;
   background:
-    radial-gradient(circle at 50% 52%, var(--oliv) 0 18%, transparent 18.6%),
-    radial-gradient(circle at 47% 50%, transparent 0 21%, var(--ocker) 21% 32%, transparent 32.7%),
-    radial-gradient(circle at 52% 53%, transparent 0 35%, var(--tuerkis) 35% 48%, transparent 48.6%),
-    radial-gradient(circle at 50% 51%, transparent 0 51%, var(--rost) 51% 68%, transparent 68.5%),
-    var(--tusche-weich);
+    radial-gradient(circle at 50% 52%, var(--gold) 0 18%, transparent 18.6%),
+    radial-gradient(circle at 47% 50%, transparent 0 21%, var(--zinnober) 21% 32%, transparent 32.7%),
+    radial-gradient(circle at 52% 53%, transparent 0 35%, var(--himbeer) 35% 48%, transparent 48.6%),
+    radial-gradient(circle at 50% 51%, transparent 0 51%, var(--violett) 51% 68%, transparent 68.5%),
+    var(--pflaume);
 }
 
 /* ── Taten: die einzigen Dinge, die man anklickt ────────────────── */
@@ -394,7 +394,7 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
     radial-gradient(circle at 50% 50%, var(--safran) 0 22%, transparent 22.5%),
     radial-gradient(circle at 50% 50%, transparent 0 26%, var(--zinnober) 26% 44%, transparent 44.6%),
     radial-gradient(circle at 50% 50%, transparent 0 48%, var(--karmin) 48% 70%, transparent 70.5%),
-    radial-gradient(circle at 50% 50%, transparent 0 74%, var(--tuerkis) 74% 100%);
+    radial-gradient(circle at 50% 50%, transparent 0 74%, var(--violett) 74% 100%);
   filter: url(#aquarell);
   transform-origin: 50% 50%;
   animation: atem-zyklus 10s cubic-bezier(.37,0,.63,1) infinite;
@@ -404,7 +404,7 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--tuerkis) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--violett) 45%, transparent);
   transform: scale(1.62);
   pointer-events: none;
 }
@@ -427,11 +427,11 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
   transition: color .8s var(--kurve-weich);
 }
 .atem[data-phase='ein'] .atem__wort { color: var(--zinnober); }
-.atem[data-phase='aus'] .atem__wort { color: var(--tuerkis); }
+.atem[data-phase='aus'] .atem__wort { color: var(--violett); }
 
 /* WURZEL — der wachsende Strang */
 .wurzelwerk svg { width: 100%; height: clamp(180px, 30vh, 320px); overflow: visible; }
-.wurzelwerk path { fill: none; stroke: var(--oliv); stroke-linecap: round; }
+.wurzelwerk path { fill: none; stroke: var(--himbeer); stroke-linecap: round; }
 
 /* FELD — die Aura */
 .aura { width: min(34vmin, 17rem); aspect-ratio: 1; position: relative; }
@@ -443,7 +443,7 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
 .aura span:nth-child(2) { inset: 12%; border-color: color-mix(in srgb, var(--karmin) 55%, transparent); animation-delay: -.7s; }
 .aura span:nth-child(3) { inset: 24%; border-color: color-mix(in srgb, var(--zinnober) 55%, transparent); animation-delay: -1.4s; }
 .aura span:nth-child(4) { inset: 36%; border-color: color-mix(in srgb, var(--safran) 60%, transparent); animation-delay: -2.1s; }
-.aura span:nth-child(5) { inset: 48%; border-color: color-mix(in srgb, var(--tuerkis) 60%, transparent); animation-delay: -2.8s; }
+.aura span:nth-child(5) { inset: 48%; border-color: color-mix(in srgb, var(--violett) 60%, transparent); animation-delay: -2.8s; }
 @keyframes aura-puls { 0%,100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.06); opacity: 1; } }
 
 /* BEGEGNUNG — jede Frage ein eigenes Fragment.
@@ -520,7 +520,7 @@ html[data-js='an'] .raum[data-zieht] { cursor: grabbing; }
   border: 1.5px solid var(--zinnober);
   transition: transform var(--mittel) var(--kurve), opacity var(--mittel);
 }
-.formular__senden button::after { inset: 14%; border-color: var(--tuerkis); opacity: .5; }
+.formular__senden button::after { inset: 14%; border-color: var(--violett); opacity: .5; }
 .formular__senden button:hover::before { transform: scale(1.09) rotate(7deg); }
 .formular__senden button:hover::after  { transform: scale(.86) rotate(-11deg); opacity: 1; }
 .formular__senden button:hover { color: var(--zinnober); }

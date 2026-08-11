@@ -207,7 +207,7 @@ export function pigmentAufbauen (leinwand, atem) {
   kamera.position.set(0, 0, 12);
 
   const HEIM = new T.Vector3(0, 0, 12);
-  const papier = new T.Vector3(...hex2rgb('#efe5d1'));
+  const papier = new T.Vector3(...hex2rgb('#fdf3f0'));
   const flaeche = new T.PlaneGeometry(2, 2, 1, 1);
 
   /* ── Wolken ─────────────────────────────────────────────── */

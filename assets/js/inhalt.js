@@ -8,10 +8,10 @@
    ══════════════════════════════════════════════════════════════════ */
 
 const P = {
-  zinnober: '#d94f1e', safran:  '#e9a422', karmin:  '#b81f52', magenta: '#c4358f',
-  altrosa:  '#c26f66', tuerkis: '#0f5b58', tuerkisH:'#2d8a83', kobalt:  '#22417f',
-  tiefblau: '#16306e', oliv:    '#5b7423', tiefgruen:'#33511f', ocker:   '#bd8429',
-  sand:     '#dcc49a', creme:   '#e7d9b8', rost:    '#9c3814', tusche:  '#2a231a'
+  zinnober: '#f2551b', safran:  '#fa9a16', karmin:  '#e11447', magenta: '#d21c93',
+  altrosa:  '#f2879e', violett: '#7c31ad', violettH:'#a655cf', pflaume: '#5a2585',
+  tiefviolett:'#43196a', himbeer: '#d81a6e', purpur:  '#a11a86', gold:    '#fdb92a',
+  rosa:     '#f8c3cf', creme:   '#fdeae0', rost:    '#c8380f', tusche:  '#4a1330'
 };
 
 /** Der Anteil der halben Sichthöhe, den ein Kreis mit r = 1 einnimmt. */
@@ -21,57 +21,57 @@ export const MASS = { weit: 0.30, hoch: 0.24 };
 export const KREISE = [
   {
     id: 'bild', ziel: 'raum-bild',
-    farben: [P.karmin, P.safran, P.tuerkis, P.zinnober, P.sand, P.rost, P.ocker, P.magenta],
-    ringe: 8, saat: 11, luecke: 0, lueckeWo: 0,
+    farben: [P.gold, P.safran, P.zinnober, P.pflaume, P.karmin, P.violett, P.himbeer, P.rosa],
+    ringe: 7, saat: 11, luecke: 0, lueckeWo: 0,
     weit: { x: -0.34, y:  0.02, z: -0.5, r: 1.30 },
     hoch: { x: -0.10, y:  0.24, z: -0.4, r: 1.15 }
   },
   {
     id: 'klang', ziel: 'raum-klang',
-    farben: [P.kobalt, P.tuerkisH, P.sand, P.tiefblau, P.kobalt, P.ocker],
-    ringe: 6, saat: 23, luecke: 0.55, lueckeWo: -0.9,
+    farben: [P.gold, P.zinnober, P.violett, P.karmin, P.magenta, P.rosa],
+    ringe: 5, saat: 23, luecke: 0.55, lueckeWo: -0.9,
     weit: { x:  0.80, y:  0.52, z: -1.4, r: 0.95 },
     hoch: { x:  0.30, y: -0.10, z: -1.2, r: 0.78 }
   },
   {
     id: 'kreis', ziel: 'raum-kreis',
-    farben: [P.tusche, P.rost, P.ocker, P.tusche, P.sand],
-    ringe: 5, saat: 37, luecke: 0, lueckeWo: 0,
+    farben: [P.gold, P.zinnober, P.pflaume, P.karmin, P.rosa],
+    ringe: 4, saat: 37, luecke: 0, lueckeWo: 0,
     weit: { x:  1.34, y: -0.16, z:  0.3, r: 0.72 },
     hoch: { x: -0.30, y: -0.36, z:  0.2, r: 0.72 }
   },
   {
     id: 'atem', ziel: 'raum-atem',
-    farben: [P.tuerkis, P.safran, P.tuerkisH, P.sand],
-    ringe: 4, saat: 53, luecke: 0.4, lueckeWo: 2.3,
+    farben: [P.gold, P.violett, P.himbeer, P.rosa],
+    ringe: 3, saat: 53, luecke: 0.4, lueckeWo: 2.3,
     weit: { x: -1.20, y: -0.62, z:  0.7, r: 0.58 },
     hoch: { x:  0.26, y: -0.56, z:  0.5, r: 0.58 }
   },
   {
     id: 'wurzel', ziel: 'raum-wurzel',
-    farben: [P.tiefgruen, P.ocker, P.oliv, P.sand, P.oliv],
-    ringe: 5, saat: 71, luecke: 0, lueckeWo: 0,
+    farben: [P.gold, P.rost, P.tiefviolett, P.himbeer, P.rosa],
+    ringe: 4, saat: 71, luecke: 0, lueckeWo: 0,
     weit: { x:  0.20, y: -0.80, z: -0.7, r: 0.80 },
     hoch: { x:  0.30, y:  0.56, z: -0.9, r: 0.60 }
   },
   {
     id: 'feldraum', ziel: 'raum-feld',
-    farben: [P.magenta, P.karmin, P.safran, P.altrosa, P.kobalt, P.magenta, P.sand],
-    ringe: 7, saat: 89, luecke: 0, lueckeWo: 0,
+    farben: [P.gold, P.safran, P.purpur, P.zinnober, P.karmin, P.magenta, P.rosa],
+    ringe: 6, saat: 89, luecke: 0, lueckeWo: 0,
     weit: { x:  1.44, y:  0.92, z: -2.2, r: 0.62 },
     hoch: { x: -0.31, y:  0.62, z: -1.8, r: 0.50 }
   },
   {
     id: 'weg', ziel: 'raum-weg',
-    farben: [P.ocker, P.rost, P.sand],
-    ringe: 3, saat: 103, luecke: 0.7, lueckeWo: 1.2,
+    farben: [P.gold, P.karmin, P.rosa],
+    ringe: 2, saat: 103, luecke: 0.7, lueckeWo: 1.2,
     weit: { x: -0.14, y:  0.74, z: -2.6, r: 0.50 },
     hoch: { x:  0.03, y:  0.80, z: -2.4, r: 0.38 }
   },
   {
     id: 'begegnung', ziel: 'raum-begegnung',
-    farben: [P.zinnober, P.tuerkisH, P.magenta, P.sand],
-    ringe: 4, saat: 127, luecke: 0, lueckeWo: 0,
+    farben: [P.gold, P.violett, P.karmin, P.rosa],
+    ringe: 3, saat: 127, luecke: 0, lueckeWo: 0,
     weit: { x:  0.62, y: -0.34, z:  1.0, r: 0.46 },
     hoch: { x: -0.26, y: -0.72, z:  0.8, r: 0.46 }
   }
@@ -79,9 +79,9 @@ export const KREISE = [
 
 /** Weiche Aquarellwolken weit hinten — reine Stimmung, kaum sichtbar. */
 export const WOLKEN = [
-  { farbe: P.safran,   x: -0.7, y:  0.7, z: -8.0, r: 3.6, saat: 5,  staerke: .16 },
-  { farbe: P.karmin,   x:  1.2, y: -0.6, z: -9.2, r: 4.2, saat: 13, staerke: .11 },
-  { farbe: P.tuerkisH, x: -1.5, y: -0.9, z: -9.8, r: 3.8, saat: 29, staerke: .09 }
+  { farbe: P.safran,   x: -0.7, y:  0.7, z: -8.0, r: 3.6, saat: 5,  staerke: .18 },
+  { farbe: P.himbeer,  x:  1.2, y: -0.6, z: -9.2, r: 4.2, saat: 13, staerke: .14 },
+  { farbe: P.violettH, x: -1.5, y: -0.9, z: -9.8, r: 3.8, saat: 29, staerke: .12 }
 ];
 
 /** Kandinskys Striche: kurz, mit einem Hauch Bogen. Marken, keine Kratzer. */
